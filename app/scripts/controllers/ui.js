@@ -1,7 +1,19 @@
 'use strict';
 
-angular.module('myNewProjectApp')
-  .controller('UiCtrl', ['$scope', '$parse', function ($scope, $parse) {
+app
+  .controller('UiCtrl', ['$scope', 'socket', function ($scope, socket) {
+
+    socket.on('news', function (data) {
+      console.log(data);
+      socket.emit('my other event', { my: 'data' });
+    });
+
+    socket.emit('echo', {msg: 'nihao'});
+
+    socket.on('echo', function(msg) {
+      console.log(msg);
+    });
+
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',

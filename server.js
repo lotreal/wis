@@ -19,7 +19,9 @@ var http = require('http');
 var server = http.createServer(app);
 
 // Socket.io
+var socket = require('./lib/socket.js');
 var io = require('socket.io').listen(server);
+io.sockets.on('connection', socket);
 
 // Express settings
 require('./lib/config/express')(app);
