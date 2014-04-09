@@ -14,6 +14,13 @@ var config = require('./lib/config/config');
 
 var app = express();
 
+var http = require('http');
+
+var server = http.createServer(app);
+
+// Socket.io
+var io = require('socket.io').listen(server);
+
 // Express settings
 require('./lib/config/express')(app);
 
@@ -21,7 +28,7 @@ require('./lib/config/express')(app);
 require('./lib/routes')(app);
 
 // Start server
-app.listen(config.port, function () {
+server.listen(config.port, function () {
   console.log('Express server listening on port %d in %s mode', config.port, app.get('env'));
 });
 
