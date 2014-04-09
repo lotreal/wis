@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('myNewProjectApp', [
+  'ui.bootstrap',
   'ngCookies',
   'ngResource',
   'ngSanitize',
@@ -12,9 +13,13 @@ angular.module('myNewProjectApp', [
         templateUrl: 'partials/main',
         controller: 'MainCtrl'
       })
+      .when('/ui', {
+        templateUrl: 'partials/ui',
+        controller: 'UiCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });
-      
+
     $locationProvider.html5Mode(true);
   });
