@@ -79,7 +79,7 @@ module.exports = function (grunt) {
           '{.tmp,<%= yeoman.app %>}/scripts/{,*//*}*.js',
           '<%= yeoman.app %>/images/{,*//*}*.{png,jpg,jpeg,gif,webp,svg}'
         ],
-      
+
         options: {
           livereload: true
         }
@@ -188,7 +188,7 @@ module.exports = function (grunt) {
             nodemon.on('config:update', function () {
               setTimeout(function () {
                 require('open')('http://localhost:8080/debug?port=5858');
-              }, 500);              
+              }, 500);
             });
           }
         }
@@ -200,7 +200,7 @@ module.exports = function (grunt) {
       app: {
         html: '<%= yeoman.app %>/views/index.html',
         ignorePath: '<%= yeoman.app %>/',
-        exclude: ['bootstrap-sass']
+        exclude: ['bootstrap-sass', 'requirejs', 'modernizr', 'mocha', 'jquery.easing', 'moment']
       }
     },
 
@@ -210,7 +210,7 @@ module.exports = function (grunt) {
         sassDir: '<%= yeoman.app %>/styles',
         cssDir: '.tmp/styles',
         generatedImagesDir: '.tmp/images/generated',
-        imagesDir: '<%= yeoman.app %>/images',
+        imagesDir: ['<%= yeoman.app %>/images', '<%= yeoman.app %>/styles/ui/images/'],
         javascriptsDir: '<%= yeoman.app %>/scripts',
         fontsDir: '<%= yeoman.app %>/styles/fonts',
         importPath: '<%= yeoman.app %>/bower_components',
@@ -516,7 +516,7 @@ module.exports = function (grunt) {
       'test:server',
       'test:client'
     ]);
-  });  
+  });
 
   grunt.registerTask('build', [
     'clean:dist',

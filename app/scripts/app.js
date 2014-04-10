@@ -1,11 +1,31 @@
 'use strict';
 
 var app = angular.module('myNewProjectApp', [
+  // Angular modules
+  'ngRoute',
+  'ngAnimate',
+
+  // 3rd Party Modules
   'ui.bootstrap',
-  'ngCookies',
-  'ngResource',
-  'ngSanitize',
-  'ngRoute'
+  // 'easypiechart',
+  // 'mgo-angular-wizard',
+  // 'textAngular',
+
+  // Custom modules
+  // 'app.ui.ctrls',
+  // 'app.ui.directives',
+  // 'app.ui.services',
+  // 'app.controllers',
+  // 'app.directives',
+  // 'app.form.validation',
+  // 'app.ui.form.ctrls',
+  // 'app.ui.form.directives',
+  // 'app.tables',
+  // 'app.task',
+  // 'app.localization',
+  // 'app.chart.ctrls',
+  // 'app.chart.directives'
+  'app.directives'
 ]);
 
 app.config(function ($routeProvider, $locationProvider) {
@@ -17,6 +37,10 @@ app.config(function ($routeProvider, $locationProvider) {
     .when('/ui', {
       templateUrl: 'partials/ui',
       controller: 'UiCtrl'
+    })
+    .when('/signin', {
+      templateUrl: 'partials/signin',
+      controller: 'MainCtrl'
     })
     .otherwise({
       redirectTo: '/'
