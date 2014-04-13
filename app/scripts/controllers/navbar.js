@@ -11,6 +11,9 @@ angular.module('myNewProjectApp')
     },{
       'title': 'SignIn',
       'link': '/signin'
+    },{
+      'title': 'wis',
+      'link': '/wis'
     }];
 
     $scope.isActive = function(route) {

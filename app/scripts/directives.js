@@ -26,6 +26,7 @@ angular.module('app.directives', []).directive('imgHolder', [
               return $element.addClass('body-home');
             case '/404':
             case '/pages/500':
+            case '/wis':
             case '/signin':
             case '/pages/signup':
               return $element.addClass('body-special');

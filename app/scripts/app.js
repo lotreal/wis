@@ -38,6 +38,10 @@ app.config(function ($routeProvider, $locationProvider) {
       templateUrl: 'partials/ui',
       controller: 'UiCtrl'
     })
+    .when('/wis', {
+      templateUrl: 'partials/wis',
+      controller: 'WisCtrl'
+    })
     .when('/signin', {
       templateUrl: 'partials/signin',
       controller: 'MainCtrl'
