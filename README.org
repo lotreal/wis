@@ -1,0 +1,13 @@
+express + angular + socket.io + flatify
+
+* 初始化
+
+yo angular-fullstack
+
+* 启动
+
+grunt server
+
+* 谁是卧底开发
+
+http://localhost:3000/wis
