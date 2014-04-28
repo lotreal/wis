@@ -48,6 +48,7 @@ module.exports = (grunt) ->
             server:
                 options:
                     bare: true
+                    spawn: false
                 files: [
                     expand: true
                     cwd: "./"
@@ -61,6 +62,7 @@ module.exports = (grunt) ->
                     join: true,
                     sourceRoot: ""
                     bare: true
+                    spawn: false
                 files: [
                     expand: true
                     cwd: "<%= yeoman.app %>/scripts"
@@ -80,11 +82,13 @@ module.exports = (grunt) ->
                 ]
 
         watch:
-            coffee:
+            serverCoffee:
+                files: ['server.coffee', 'lib/**/*.coffee']
+                tasks: ["newer:coffee:server"]
+
+            clientCoffee:
                 files: ["<%= yeoman.app %>/scripts/**/*.coffee"]
-                tasks: ["coffee:server"]
-                options:
-                    livereload: true
+                tasks: ["newer:coffee:client"]
 
             js:
                 files: ["<%= yeoman.app %>/scripts/{,*/}*.js"]
