@@ -9,19 +9,19 @@
 process.env.NODE_ENV = process.env.NODE_ENV or "development"
 config = require("./lib/config/config")
 module.exports = (grunt) ->
-    
+
     # Load grunt tasks automatically
     require("load-grunt-tasks") grunt
-    
+
     # Time how long tasks take. Can help when optimizing build times
     require("time-grunt") grunt
-    
+
     # Define the configuration for all the tasks
     grunt.initConfig
-        
+
         # Project settings
         yeoman:
-            
+
             # configurable paths
             app: require("./bower.json").appPath or "app"
             dist: "dist"
@@ -43,6 +43,30 @@ module.exports = (grunt) ->
         open:
             server:
                 url: "http://localhost:<%= express.options.port %>"
+
+        coffee:
+            server:
+                options:
+                    sourceMap: true
+                    join: true,
+                    sourceRoot: ""
+                files: [
+                    expand: true
+                    cwd: "<%= yeoman.app %>/scripts"
+                    src: "**/*.coffee"
+                    dest: ".tmp/scripts"
+                    ext: ".js"
+                ]
+            dist:
+                options:
+                    sourceMap: false
+                files: [
+                    expand: true
+                    cwd: "<%= yeoman.app %>/scripts"
+                    src: "**/*.coffee"
+                    dest: ".tmp/scripts"
+                    ext: ".js"
+                ]
 
         watch:
             js:
@@ -96,7 +120,7 @@ module.exports = (grunt) ->
                     livereload: true
                     spawn: false #Without this option specified express won't be reloaded
 
-        
+
         # Make sure code styles are up to par and there are no obvious mistakes
         jshint:
             options:
@@ -116,7 +140,7 @@ module.exports = (grunt) ->
 
                 src: ["test/client/spec/{,*/}*.js"]
 
-        
+
         # Empties folders to start fresh
         clean:
             dist:
@@ -142,7 +166,7 @@ module.exports = (grunt) ->
 
             server: ".tmp"
 
-        
+
         # Add vendor prefixed styles
         autoprefixer:
             options:
@@ -156,14 +180,14 @@ module.exports = (grunt) ->
                     dest: ".tmp/styles/"
                 ]
 
-        
+
         # Debugging with node inspector
         "node-inspector":
             custom:
                 options:
                     "web-host": "localhost"
 
-        
+
         # Use nodemon to run server in debug mode with an initial breakpoint
         nodemon:
             debug:
@@ -178,7 +202,7 @@ module.exports = (grunt) ->
                             console.log event.colour
                             return
 
-                        
+
                         # opens browser on initial server start
                         nodemon.on "config:update", ->
                             setTimeout (->
@@ -189,7 +213,7 @@ module.exports = (grunt) ->
 
                         return
 
-        
+
         # Automatically inject Bower components into the app
         "bower-install":
             app:
@@ -204,7 +228,7 @@ module.exports = (grunt) ->
                     "moment"
                 ]
 
-        
+
         # Compiles Sass to CSS and generates necessary files if requested
         compass:
             options:
@@ -233,7 +257,7 @@ module.exports = (grunt) ->
                 options:
                     debugInfo: true
 
-        
+
         # Renames files for browser caching purposes
         rev:
             dist:
@@ -245,7 +269,7 @@ module.exports = (grunt) ->
                         "<%= yeoman.dist %>/public/styles/fonts/*"
                     ]
 
-        
+
         # Reads HTML for usemin blocks to enable smart builds that automatically
         # concat, minify and revision files. Creates configurations in memory so
         # additional tasks can operate on them
@@ -257,7 +281,7 @@ module.exports = (grunt) ->
             options:
                 dest: "<%= yeoman.dist %>/public"
 
-        
+
         # Performs rewrites based on rev and the useminPrepare configuration
         usemin:
             html: [
@@ -268,7 +292,7 @@ module.exports = (grunt) ->
             options:
                 assetsDirs: ["<%= yeoman.dist %>/public"]
 
-        
+
         # The following *-min tasks produce minified files in the dist folder
         imagemin:
             options:
@@ -294,7 +318,7 @@ module.exports = (grunt) ->
         htmlmin:
             dist:
                 options: {}
-                
+
                 #collapseWhitespace: true,
                 #collapseBooleanAttributes: true,
                 #removeCommentsFromCDATA: true,
@@ -309,7 +333,7 @@ module.exports = (grunt) ->
                     dest: "<%= yeoman.dist %>/views"
                 ]
 
-        
+
         # Allow the use of non-minsafe AngularJS files. Automatically makes it
         # minsafe compatible so Uglify does not destroy the ng references
         ngmin:
@@ -321,13 +345,13 @@ module.exports = (grunt) ->
                     dest: ".tmp/concat/scripts"
                 ]
 
-        
+
         # Replace Google CDN references
         cdnify:
             dist:
                 html: ["<%= yeoman.dist %>/views/*.html"]
 
-        
+
         # Copies remaining files to places other tasks can use
         copy:
             dist:
@@ -375,7 +399,7 @@ module.exports = (grunt) ->
                 dest: ".tmp/styles/"
                 src: "{,*/}*.css"
 
-        
+
         # Run some tasks in parallel to speed up the build process
         concurrent:
             server: ["compass:server"]
@@ -395,7 +419,7 @@ module.exports = (grunt) ->
                 "htmlmin"
             ]
 
-        
+
         # By default, your `index.html`'s <!-- Usemin block --> will take care of
         # minification. These next options are pre-configured if you do not wish
         # to use the Usemin blocks.
@@ -421,7 +445,7 @@ module.exports = (grunt) ->
         # concat: {
         #   dist: {}
         # },
-        
+
         # Test settings
         karma:
             unit:
@@ -438,7 +462,7 @@ module.exports = (grunt) ->
             test:
                 NODE_ENV: "test"
 
-    
+
     # Used for delaying livereload until after server has restarted
     grunt.registerTask "wait", ->
         grunt.log.ok "Waiting for server reload..."
@@ -476,7 +500,7 @@ module.exports = (grunt) ->
             "concurrent:server"
             "autoprefixer"
             "express:dev"
-            
+
             # 'open',
             "watch"
         ]
