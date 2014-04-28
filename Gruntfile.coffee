@@ -7,7 +7,7 @@
 # use this if you want to recursively match all subfolders:
 # 'test/spec/**/*.js'
 process.env.NODE_ENV = process.env.NODE_ENV or "development"
-config = require("./lib/config/config")
+# config = require("./lib/config/config")
 module.exports = (grunt) ->
 
     # Load grunt tasks automatically
@@ -28,7 +28,7 @@ module.exports = (grunt) ->
 
         express:
             options:
-                port: config.port
+                port: 3000
 
             dev:
                 options:
@@ -46,6 +46,16 @@ module.exports = (grunt) ->
 
         coffee:
             server:
+                options:
+                    bare: true
+                files: [
+                    expand: true
+                    cwd: "./"
+                    src: ['server.coffee', 'lib/**/*.coffee']
+                    ext: ".js"
+                ]
+
+            client:
                 options:
                     sourceMap: true
                     join: true,
@@ -67,18 +77,6 @@ module.exports = (grunt) ->
                     src: "**/*.coffee"
                     dest: ".tmp/scripts"
                     ext: ".js"
-                ]
-            posSDK:
-                options:
-                    bare: true
-                files: [{
-                        expand: true
-                        cwd: "lib"
-                        src: "**/*.coffee"
-                        dest: "lib"
-                        ext: ".js"
-                    }
-                    server.coffee
                 ]
 
         watch:
@@ -214,7 +212,7 @@ module.exports = (grunt) ->
                 options:
                     nodeArgs: ["--debug-brk"]
                     env:
-                        PORT: config.port
+                        PORT: 3000
 
                     callback: (nodemon) ->
                         nodemon.on "log", (event) ->
@@ -421,7 +419,7 @@ module.exports = (grunt) ->
 
         # Run some tasks in parallel to speed up the build process
         concurrent:
-            server: ["compass:server", 'coffee:server']
+            server: ["compass:server", 'coffee:server', 'coffee:client']
             test: ["compass"]
             debug:
                 tasks: [
