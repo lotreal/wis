@@ -9,3 +9,12 @@ model.user.find('张三').then(function(profile) {
 }, function(err) {
   return console.log(err);
 });
+
+model.user.find('邓娟').then(function(profile) {
+  console.log(profile);
+  return model.user.id(profile.id).then(function(profile) {
+    return console.log(profile);
+  });
+}, function(err) {
+  return console.log(err);
+});

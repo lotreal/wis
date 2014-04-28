@@ -3,6 +3,8 @@
 config = require('../config/config')
 client = config.redis
 
-module.exports =
+module.exports = (->
     user: require('./user')(client)
     game: require('./game')(client)
+    player: require('./player')(client)
+)()

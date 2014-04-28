@@ -18,8 +18,8 @@ module.exports = (client)->
             client.hget INDEX_USER_NAME, name, (err, uid)->
                 return reject 'User not found.' if !uid
                 client.hgetall KEY_USER(uid), (err, user)->
-                    user.id = uid
-                    resolve user
+                    return reject 'User not found.' if !user
+                    resolve id: uid, profile:user
 
     # 更新指定用户名的用户档案
     update = (name, profile)->
@@ -31,7 +31,14 @@ module.exports = (client)->
         client.hgetall INDEX_USER_NAME, (err, indexes)->
             find(name) for name, uid of indexes
 
+    id = (uid)->
+        return new Promise (resolve, reject)->
+            client.hgetall KEY_USER(uid), (err, user)->
+                return reject 'User not found.' if !user
+                resolve id: uid, profile:user
+
     return {
         all: all
         find: find
+        id: id
     }

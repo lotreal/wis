@@ -6,7 +6,7 @@ module.exports = (socket) ->
     sid = socket.handshake.sessionID
     uid = socket.handshake.uid
 
-    sss = uid:uid, io:socket.id
+    sss = id:uid, io:socket.id
 
     model.game.add(sss)
     console.log('A socket with UID ' + uid + ' connected!')
@@ -14,6 +14,8 @@ module.exports = (socket) ->
     socket.on 'disconnect', ()->
         console.log('A socket with UID ' + uid + ' disconnected!')
         model.game.remove(sss)
+        socket.emit 'room:join', model.game.status()
+        socket.broadcast.emit 'room:join', model.game.status()
 
     context =
         uid: uid
@@ -43,7 +45,8 @@ module.exports = (socket) ->
         #     )
 
 
-    socket.emit 'room:join', game.test
+    socket.emit 'room:join', model.game.status()
+    socket.broadcast.emit 'room:join', model.game.status()
 
     socket.on 'echo', (msg) ->
         console.log msg

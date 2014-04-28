@@ -12,5 +12,6 @@ app.controller 'WisCtrl', ['$scope', 'socket', ($scope, socket) ->
     socket.on 'room:join', (data) ->
         console.log data
         $scope.players = data
+        $scope.player_num = data.length
 
 ]

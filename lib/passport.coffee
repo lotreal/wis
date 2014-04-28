@@ -55,9 +55,9 @@ module.exports = (()->
         return new Promise (resolve, reject)->
             Model.user.find(name)
             .then(
-                (profile)->
-                    console.log login: profile
-                    token = sign(uid: profile.id)
+                (user)->
+                    console.log login: user
+                    token = sign(uid: user.id)
                     resolve token
                 (err)->
                     reject 'Incorrect username or password.'

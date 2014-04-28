@@ -11,7 +11,8 @@ app.controller('WisCtrl', [
     });
     return socket.on('room:join', function(data) {
       console.log(data);
-      return $scope.players = data;
+      $scope.players = data;
+      return $scope.player_num = data.length;
     });
   }
 ]);
