@@ -1,5 +1,5 @@
 <div class="container">
-    <h1>{{title}}</h1>
+    <h1>汉典</h1>
 
     <div class="row">
         <div class="col-sm-9">
@@ -21,7 +21,7 @@
                 <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> 现代汉语词典（第6版）</strong></div>
                 <ul class="list-group">
                     <li class="list-group-item" ng-repeat="player in players">
-                        {{$index+1}}. {{player.profile.slogan}}
+                        {{title($index+1)}}、{{player.profile.slogan}}
                     </li>
                     <!-- <li class="list-group-item">
                     <span class="badge badge-warning">2</span>

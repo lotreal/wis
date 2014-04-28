@@ -1,6 +1,7 @@
 passport = require('./passport')
 game = require('./game')
 model = require('./model')
+Promise = require('bluebird')
 
 module.exports = (socket) ->
     sid = socket.handshake.sessionID
@@ -11,11 +12,20 @@ module.exports = (socket) ->
     model.game.add(sss)
     console.log('A socket with UID ' + uid + ' connected!')
 
-    socket.on 'disconnect', ()->
+    updatePlayer = (socket)->
+        players = model.game.status()
+        Promise.all((model.user.id(p.id) for p in players)).then (fills)->
+            p.profile = fills[i].profile for p, i in players
+            socket.emit 'room:join', players
+            socket.broadcast.emit 'room:join', players
+
+    updatePlayer(socket)
+
+    socket.on 'disconnect', (a, b, c)->
+        console.log arg1:a, arg2:b
         console.log('A socket with UID ' + uid + ' disconnected!')
         model.game.remove(sss)
-        socket.emit 'room:join', model.game.status()
-        socket.broadcast.emit 'room:join', model.game.status()
+        updatePlayer(socket)
 
     context =
         uid: uid
@@ -43,10 +53,6 @@ module.exports = (socket) ->
         #     .then((profile)->
         #         fn profile.slogan
         #     )
-
-
-    socket.emit 'room:join', model.game.status()
-    socket.broadcast.emit 'room:join', model.game.status()
 
     socket.on 'echo', (msg) ->
         console.log msg
