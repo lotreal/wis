@@ -50,6 +50,7 @@ module.exports = (grunt) ->
                     sourceMap: true
                     join: true,
                     sourceRoot: ""
+                    bare: true
                 files: [
                     expand: true
                     cwd: "<%= yeoman.app %>/scripts"
@@ -69,6 +70,12 @@ module.exports = (grunt) ->
                 ]
 
         watch:
+            coffee:
+                files: ["<%= yeoman.app %>/scripts/**/*.coffee"]
+                tasks: ["coffee:server"]
+                options:
+                    livereload: true
+
             js:
                 files: ["<%= yeoman.app %>/scripts/{,*/}*.js"]
                 tasks: ["newer:jshint:all"]
@@ -402,7 +409,7 @@ module.exports = (grunt) ->
 
         # Run some tasks in parallel to speed up the build process
         concurrent:
-            server: ["compass:server"]
+            server: ["compass:server", 'coffee:server']
             test: ["compass"]
             debug:
                 tasks: [
