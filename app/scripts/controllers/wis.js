@@ -2,23 +2,16 @@
 'use strict';
 app.controller('WisCtrl', [
   '$scope', 'socket', function($scope, socket) {
-    var context;
     $scope.title = 'Room';
-    context = {
-      user: {
-        id: 1,
-        name: 'lot'
-      },
-      room: {
-        id: 'tuhao',
-        name: '我的土豪朋友们'
-      }
-    };
-    socket.emit('room:enter', context, function(msg) {
-      return $scope.title = msg;
+    socket.emit('room:enter', {}, function(profile) {
+      return console.log(profile);
+    });
+    socket.on('room:enter', function(msg) {
+      return console.log(msg);
     });
     return socket.on('room:join', function(data) {
-      return console.log(data);
+      console.log(data);
+      return $scope.players = data;
     });
   }
 ]);

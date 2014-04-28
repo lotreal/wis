@@ -27,11 +27,12 @@
                         <div class="form-group">
                             <div class="input-group input-group-lg">
                                 <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-envelope"></span>
+                                    <span class="glyphicon glyphicon-user"></span>
                                 </span>
-                                <input type="email"
+                                <input type="text"
                                        class="form-control"
-                                       placeholder="Email"
+                                       placeholder="姓名"
+                                       ng-model="username"
                                        >
                             </div>
                         </div>
@@ -42,14 +43,14 @@
                                 </span>
                                 <input type="password"
                                        class="form-control"
-                                       placeholder="password"
+                                       placeholder="密码"
                                        >
                             </div>
                         </div>
                         <div class="form-group">
                         </div>
                         <div class="form-group">
-                            <a href="#/" class="btn btn-primary btn-lg btn-block">Log in</a>
+                            <a class="btn btn-primary btn-lg btn-block" ng-click="login()">Log in</a>
                         </div>
                     </fieldset>
                 </form>

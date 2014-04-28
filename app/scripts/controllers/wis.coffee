@@ -1,20 +1,16 @@
 'use strict'
 
 app.controller 'WisCtrl', ['$scope', 'socket', ($scope, socket) ->
-  $scope.title = 'Room'
+    $scope.title = 'Room'
 
-  context =
-    user:
-      id: 1
-      name: 'lot'
+    socket.emit 'room:enter', {}, (profile)->
+        console.log profile
 
-    room:
-      id: 'tuhao'
-      name: '我的土豪朋友们'
+    socket.on 'room:enter', (msg) ->
+        console.log msg
 
-  socket.emit 'room:enter', context, (msg) ->
-    $scope.title = msg
+    socket.on 'room:join', (data) ->
+        console.log data
+        $scope.players = data
 
-  socket.on 'room:join', (data) ->
-    console.log data
 ]

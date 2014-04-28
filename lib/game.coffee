@@ -1,69 +1,88 @@
-class Player
-  constructor: (@id)->
+'use strict'
+userManager = require('./model').user
+uuid = require('node-uuid')
 
-class Room
-  constructor: (@id)->
-    @players = []
+module.exports = (()->
+    class Player
+        constructor: (@profile)->
 
-  add: (player)->
-    @players.push player
-    return player
+        id: ()->
+            @profile.uid
 
-Game = (->
-  rooms = {}
-  players = {}
-  cache = {}
+        profile: ()->
+            @profile
 
-  room = (id)->
-    rooms[id] = new Room id if id not of rooms
-    return rooms[id]
+        joinGame: (game)->
+            game.add(@)
 
-  player = (id)->
-    players[id] = new Player id if id not of players
-    return players[id]
+    class Game
+        constructor: ()->
+            @id = uuid.v4()
+            @players = []
 
-  debug = ()->
-    console.log
-      rooms:   rooms
-      players: players
-      cache:   cache
+        add: (player)->
+            @players.push player
+            return player
 
-  join = (player, room)->
-    if player.id not of cache
-      cache[player.id] = room.id
-      room.add player
-    else
-      false
+    class Presenter
+        constructor: (@options)->
 
-  exports =
-    debug:  debug
-    room:   room
-    player: player
-    join:   join
+        ready: (socket)->
+            socket.on 'join:game', ()->
+                # getUser()
+                #     .then((profile)->
+                #         socket.broadcast.emit('join:game', profile);
+                #     )
 
-  return exports
+    GameManager = (->
+        store = {}
+        gameStore = {}
+        playerStore = {}
+
+        return {
+            status: ()->
+                store
+
+            register: (context)->
+                store[context.uid] = context
+                return context
+
+            getPlayer: (uid)->
+                player = playerStore[uid]
+                if (!player)
+                    profile = userManager.find(uid)
+                    player = new Player(profile)
+                    playerStore[uid] = player
+                return player
+
+            registerPlayer: (profile)->
+                player = new Player(profile)
+                playerStore[player.id()] = player
+                return player
+
+            queryGame: ()->
+                game = new Game()
+                gameStore[game.id] = game
+                return game
+
+            queryPlayer: ()->
+                playerStore
+        }
+    )()
+
+    main = ()->
+        GameManager.registerPlayer user for user in userManager.all()
+
+        game = GameManager.queryGame()
+
+        player.joinGame(game) for id, player of GameManager.queryPlayer()
+
+        game.players
+
+    main() if !module.parent
+
+    return {
+        GameManager: GameManager
+        test: main()
+    }
 )()
-
-main = ()->
-  context =
-    user:
-      id: 1
-      name: 'lot'
-
-    room:
-      id: 'tuhao'
-      name: '我的土豪朋友们'
-
-  r1 = Game.room 'r1'
-  u1 = Game.player 'lot'
-  Game.join u1, r1
-  Game.join u1, r1
-
-  console.log Game.room 'r1'
-  console.log Game.player 'lot'
-
-  Game.debug()
-
-main() if !module.parent
-
-exports.Game = Game

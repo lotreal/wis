@@ -1,3 +1,4 @@
+'use strict'
 
 angular.module('app.directives', [])
 
@@ -14,7 +15,7 @@ angular.module('app.directives', [])
 # add background and some style just for specific page
 .directive('customBackground', () ->
     return {
-        restrict: "A"
+        restrict: 'A'
         controller: [
             '$scope', '$element', '$location'
             ($scope, $element, $location) ->
@@ -141,7 +142,7 @@ angular.module('app.directives', [])
 # Add 'active' class to li based on url, muli-level supported, jquery free
 .directive('highlightActive', [ ->
     return {
-        restrict: "A"
+        restrict: 'A'
         controller: [
             '$scope', '$element', '$attrs', '$location'
             ($scope, $element, $attrs, $location) ->
@@ -198,7 +199,7 @@ angular.module('app.directives', [])
 # history back button
 .directive('goBack', [ ->
     return {
-        restrict: "A"
+        restrict: 'A'
         controller: [
             '$scope', '$element', '$window'
             ($scope, $element, $window) ->
