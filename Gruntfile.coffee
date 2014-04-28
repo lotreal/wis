@@ -68,6 +68,18 @@ module.exports = (grunt) ->
                     dest: ".tmp/scripts"
                     ext: ".js"
                 ]
+            posSDK:
+                options:
+                    bare: true
+                files: [{
+                        expand: true
+                        cwd: "lib"
+                        src: "**/*.coffee"
+                        dest: "lib"
+                        ext: ".js"
+                    }
+                    server.coffee
+                ]
 
         watch:
             coffee:
