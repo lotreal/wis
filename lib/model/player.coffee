@@ -6,9 +6,7 @@ module.exports = (client)->
     class Player
         constructor: (options) ->
             @id = options.id
-            @io = options.io
-            user.id(@id).bind(@)
-                .then((user)->@profile=user.profile;return)
+            @socket = options.socket
 
     return {
         get: (options)->new Player(options)

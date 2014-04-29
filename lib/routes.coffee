@@ -3,7 +3,6 @@ api = require('./controllers/api')
 index = require('./controllers')
 passport = require('./passport')
 Model = require('./model')
-game = require('./game')
 
 ###
 Application routes
@@ -11,7 +10,7 @@ Application routes
 module.exports = (app) ->
     app.get '/status', (req, res)->
         res.json(
-            Model.game.status()
+            Model.team.get('team').status()
         )
 
     app.post '/login', (req, res)->

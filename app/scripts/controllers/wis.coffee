@@ -7,6 +7,8 @@ app.controller 'WisCtrl', ['$scope', 'socket', ($scope, socket) ->
 
     $scope.title = title
 
+    $scope.print = ->console.log 'print'
+
     socket.emit 'room:enter', {}, (profile)->
         console.log profile
 
@@ -18,4 +20,7 @@ app.controller 'WisCtrl', ['$scope', 'socket', ($scope, socket) ->
         $scope.players = data
         $scope.player_num = '神州' + title(data.length) + '杰'
 
+    $scope.startGame = ->
+        console.log 'start'
+        socket.emit 'start:game', {}
 ]

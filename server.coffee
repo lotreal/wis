@@ -19,6 +19,8 @@ server = http.createServer(app)
 socket = require("./lib/socket.js")
 io = require("socket.io").listen(server)
 
+require('./lib/config/socket') io
+
 # SessionSockets = require('session.socket.io')
 # sessionSockets = new SessionSockets(io, session.sessionStore, session.cookieParser, session.key)
 # sessionSockets.on('connection', (err, socket, session)->

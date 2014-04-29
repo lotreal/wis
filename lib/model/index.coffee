@@ -5,6 +5,6 @@ client = config.redis
 
 module.exports = (->
     user: require('./user')(client)
-    game: require('./game')(client)
+    team: require('./team')(client)
     player: require('./player')(client)
 )()
