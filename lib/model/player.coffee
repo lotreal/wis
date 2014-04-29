@@ -9,5 +9,5 @@ module.exports = (client)->
             @socket = options.socket
 
     return {
-        get: (options)->new Player(options)
+        one: (options)->new Player(options)
     }

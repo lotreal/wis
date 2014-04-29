@@ -2,11 +2,9 @@
 uuid = require('node-uuid').v4
 Promise = require('bluebird')
 _ = require('lodash')
+context = require('../context')
 
 module.exports = (client)->
-    Player = require('./player')(client)
-    cache = {}
-
     class Team
         constructor: (@id) ->
             @players = []
@@ -16,15 +14,13 @@ module.exports = (client)->
 
         add: (player)->
             _.remove(@players, (p)->p.id == player.id)
-            @players.push(Player.get(player))
+            @players.push(player)
 
+        all: ()->@players
         status: ()->@players
 
     return {
-        get: (id)->
-            obj = cache[id]
-            unless obj
-                obj = new Team(id)
-                cache[id] = obj
-            return obj
+        one: (id)->
+            context.one('team:'+id, ()->new Team(id))
+
     }

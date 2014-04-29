@@ -9,8 +9,9 @@ Application routes
 ###
 module.exports = (app) ->
     app.get '/status', (req, res)->
+        rid = '1ntlvb7r' # room id
         res.json(
-            Model.team.get('team').status()
+            Model.team.one(rid).all()
         )
 
     app.post '/login', (req, res)->
