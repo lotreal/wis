@@ -11,7 +11,7 @@ module.exports = (app) ->
     app.get '/status', (req, res)->
         rid = '1ntlvb7r' # room id
         res.json(
-            Model.team.one(rid).all()
+            Model.team.one(rid).members()
         )
 
     app.post '/login', (req, res)->

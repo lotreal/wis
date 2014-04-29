@@ -33,7 +33,8 @@
     "angular-wizard": "~0.3.0",
     "weather-icons": "~0.0.1",
     "textAngular": "~1.2.0",
-    "flot.tooltip": "*"
+    "flot.tooltip": "*",
+    "sprintf": "*"
   },
   "resolutions": {
     "jquery": "~1.11.0"

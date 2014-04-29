@@ -13,11 +13,10 @@ module.exports = (client)->
             _.remove(@players, (p)->p.id == player.id)
 
         add: (player)->
-            _.remove(@players, (p)->p.id == player.id)
+            _.remove(@players, (p)->p.id == player.id) if @players
             @players.push(player)
 
-        all: ()->@players
-        status: ()->@players
+        members: ()->@players
 
     return {
         one: (id)->

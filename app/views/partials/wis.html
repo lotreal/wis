@@ -10,7 +10,7 @@
                     </span>
                     <input type="email"
                            class="form-control"
-                           placeholder="{{player_num}}"
+                           placeholder="{{title}}"
                            >
                 </div>
             </div>
@@ -18,10 +18,10 @@
 
             <!-- List group -->
             <div class="panel panel-default">
-                <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> 现代汉语词典（第6版）</strong></div>
+                <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> {{subtitle}}</strong></div>
                 <ul class="list-group">
                     <li class="list-group-item" ng-repeat="player in players">
-                        {{title($index+1)}}、{{player.profile.slogan}}
+                        {{fmt($index+1)}}、{{player.profile.slogan}}
                     </li>
                     <!-- <li class="list-group-item">
                     <span class="badge badge-warning">2</span>

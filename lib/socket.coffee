@@ -13,7 +13,7 @@ module.exports = (socket) ->
 
 
     socket.on 'start:game', (a, b, c)->
-        GM.countdown(6)
+        GM.countdown(6, '服务器正在出题(%d)', ->GM.startGame())
 
     countdown = (count, message, done)->
 
