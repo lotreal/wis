@@ -24,11 +24,22 @@ app.controller 'WisCtrl', ['$scope', 'socket', ($scope, socket) ->
     socket.on 'count', (data) ->
         $scope.subtitle = sprintf(data.message, data.count)
 
-    socket.on 'start:game', (data)->
-        $scope.subtitle = '现代汉语词典（第6版）'
-        $scope.title = data
+    socket.on 'start:game', (game)->
+        $scope.subtitle = sprintf('现代汉语词典（第 %d 版）', game.round)
+        $scope.title = game.word
+
+    socket.on 'game:speak', (msg)->
+        console.log msg
 
     $scope.startGame = ->
         console.log 'start'
         socket.emit 'start:game', {}
+
+    $scope.keyPress = (evt)->
+        if evt.keyCode == 13
+            socket.emit 'game:speak', $scope.input
+            socket.emit 'all', $scope.input
+            $scope.input = ''
+
+    return
 ]

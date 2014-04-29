@@ -8,9 +8,11 @@
                     <span class="input-group-addon" ng-click="startGame()">
                         <span class="glyphicon glyphicon-book"></span>
                     </span>
-                    <input type="email"
+                    <input type="text"
                            class="form-control"
                            placeholder="{{title}}"
+                           ng-keydown="keyPress($event);"
+                           ng-model="input"
                            >
                 </div>
             </div>
@@ -20,8 +22,8 @@
             <div class="panel panel-default">
                 <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> {{subtitle}}</strong></div>
                 <ul class="list-group">
-                    <li class="list-group-item" ng-repeat="player in players">
-                        {{fmt($index+1)}}、{{player.profile.slogan}}
+                    <li class="list-group-item" ng-repeat="item in players">
+                        {{item}}
                     </li>
                     <!-- <li class="list-group-item">
                     <span class="badge badge-warning">2</span>

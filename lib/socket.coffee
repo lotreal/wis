@@ -10,24 +10,11 @@ module.exports = (socket) ->
 
     GM.add(me)
 
-
-
-    socket.on 'start:game', (a, b, c)->
+    socket.on 'start:game', ()->
         GM.countdown(6, '服务器正在出题(%d)', ->GM.startGame())
 
-    countdown = (count, message, done)->
+    socket.on 'game:speak', (msg)->
+        idx = GM.findIndex(socket: socket.id)
+        GM.broadcast('game:speak', idx + msg)
 
-    countdown(6, '服务器正在出题(%d)', ()->
-        socket.emit 'start:game'
-        )
-
-    # io.sockets.sockets[data.to].emit
-    # send(player, channel, content)
-    startGame = ()->
-        # all = team.status()
-        role =
-            spy: 1
-            blank: 1
-            civil: '*'
-        return
     return
