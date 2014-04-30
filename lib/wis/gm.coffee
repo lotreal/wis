@@ -46,7 +46,7 @@ module.exports = (()->
         onTeamChange: ()->
             team = @teams.all
             players = team.members()
-            console.log players
+            # console.log players
             Promise.all((Model.user.id(p.id) for p in players)).then (fills)->
                 p.profile = fills[i].profile for p, i in players
 
@@ -84,6 +84,11 @@ module.exports = (()->
             return
 
         actionGo: ()->
+
+        speak: (socket, msg)->
+            idx = @findIndex(socket: socket.id)
+            @broadcast('game:speak', idx + msg)
+
 
         broadcast: (event, data)->
             io.sockets.in(@id_team_all).emit event, data

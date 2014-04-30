@@ -2,6 +2,8 @@
 express = require("express")
 session = require('./lib/session')
 
+_ = require('lodash')
+
 ###
 Main application file
 ###
@@ -29,7 +31,7 @@ require('./lib/config/socket') io
 #     console.log session: session
 # )
 require('./lib/passport').socket(io)
-io.sockets.on "connection", socket
+io.sockets.on "connection", _.wrap(io, socket)
 
 # Express settings
 require("./lib/config/express") app
