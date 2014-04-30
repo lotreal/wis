@@ -22,6 +22,9 @@ module.exports = (client)->
             @emit 'update', @players
             player.socket().on 'disconnect', _.bind(@remove, this, player)
 
+        index: (where)->
+            _.findIndex(@players, where)
+
         members: ()->@players
 
     return {

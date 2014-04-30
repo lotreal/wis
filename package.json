@@ -13,7 +13,8 @@
     "lodash": "~2.4.1",
     "node-uuid": "^1.4.1",
     "redis": "^0.10.1",
-    "socket.io": "^0.9.16"
+    "socket.io": "^0.9.16",
+    "stately.js": "^1.2.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
