@@ -21,31 +21,16 @@ module.exports = (()->
 
             @teams = {}
             @teams.all = Model.team.one(@id_team_all)
+            @teams.all.on 'update', _.bind(@onTeamChange, @)
 
         findIndex: (where)->
             _.findIndex(@teams.all.members(), where)
 
         add: (player)->
-            player = Model.player.one(player)
             @teams.all.add(player)
-            socket = io.sockets.sockets[player.socket]
-            socket.join(@id_team_all)
-            console.log('A socket with UID ' + player.id + ' connected!')
-            @onTeamChange()
-            self = @
-            socket.on 'disconnect', ()->self.remove(player)
 
-        remove: (player)->
-            player = Model.player.one(player)
-            @teams.all.remove(player)
-            socket = io.sockets.sockets[player.socket]
-            socket.leave(@id_team_all)
-            console.log('A socket with UID ' + player.id + ' disconnected!')
-            @onTeamChange()
-
-        onTeamChange: ()->
+        onTeamChange: (players)->
             team = @teams.all
-            players = team.members()
             # console.log players
             Promise.all((Model.user.id(p.id) for p in players)).then (fills)->
                 p.profile = fills[i].profile for p, i in players

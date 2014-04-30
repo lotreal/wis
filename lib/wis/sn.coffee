@@ -24,6 +24,16 @@ exports.cnTeamname = (n)->
         '逗比'
         'LOL'
         '江南'
+        '平顶山'
+        '双龙山'
+        '大渡口'
+        '沙坪坝'
+        '南坪'
+        '鱼洞'
+        '渝北'
+        '春秋'
+        '大唐'
+        '战国'
         ]
     postfix = [
         '杰'
@@ -38,6 +48,11 @@ exports.cnTeamname = (n)->
         '仙'
         '怪'
         '圣'
+        '雄'
+        '壮士'
+        '豪'
+        '壕'
+        '基'
         ]
     # n = cnNum(n) if _.isNumber(n)
     _.sample(prefix) + n + _.sample(postfix)

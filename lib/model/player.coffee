@@ -5,8 +5,12 @@ module.exports = (client)->
 
     class Player
         constructor: (options) ->
-            @id = options.id
-            @socket = options.socket
+            @id = options.uid
+            @socketID = options.socketID
+            @io = options.io
+
+        socket: ->
+            @io.sockets.sockets[@socketID]
 
     return {
         one: (options)->new Player(options)
