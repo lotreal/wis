@@ -10,36 +10,31 @@ app.controller 'WisCtrl', ['$scope', 'socket', ($scope, socket) ->
 
     $scope.print = ->console.log 'print'
 
-    socket.emit 'room:enter', {}, (profile)->
-        console.log profile
-
-    socket.on 'room:enter', (msg) ->
-        console.log msg
-
-    socket.on 'room:join', (data) ->
-        console.log data
-        $scope.players = data
-        $scope.title = '神州' + title(data.length) + '杰'
-
-    socket.on 'count', (data) ->
-        $scope.subtitle = sprintf(data.message, data.count)
-
-    socket.on 'start:game', (game)->
-        $scope.subtitle = sprintf('现代汉语词典（第 %d 版）', game.round)
-        $scope.title = game.word
-
-    socket.on 'game:speak', (msg)->
-        console.log msg
-
     $scope.startGame = ->
         console.log 'start'
-        socket.emit 'start:game', {}
+        socket.emit 'game:start', {}
 
     $scope.keyPress = (evt)->
         if evt.keyCode == 13
             socket.emit 'game:speak', $scope.input
-            socket.emit 'all', $scope.input
             $scope.input = ''
+
+    socket.on 'game:player:update', (data) ->
+        console.log data
+        $scope.players = data
+        $scope.title = '神州' + title(data.length) + '杰'
+
+    socket.on 'game:start:count', (data) ->
+        $scope.subtitle = sprintf(data.message, data.count)
+
+    socket.on 'game:deal', (game)->
+        $scope.subtitle = sprintf('现代汉语词典（第 %d 版）', game.round)
+        $scope.title = game.word
+
+
+    socket.on 'game:speak', (msg)->
+        console.log msg
+        $scope.players = msg
 
     return
 ]

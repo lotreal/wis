@@ -8,74 +8,115 @@ sn = require('./sn')
 Stately = require('stately.js')
 
 module.exports = (rid, io)->
-
-    countdown = (count, message, done)->
-        fn = ->
-            io.sockets.in(rid).emit 'count',
-                {count:count--, message:message}
-            if (count > 0)
-                console.log count
-                setTimeout(fn, 1000)
-            else
-                setTimeout(done, 1000)
-        return fn()
+    round = 1
+    id_team_all   = rid
+    id_team_spy   = "#{rid}:spy"
+    id_team_civil = "#{rid}:civil"
+    team = Model.team.one(id_team_all)
 
     onTeamChange = (players)->
         Promise.all((Model.user.id(p.id) for p in players)).then (fills)->
             p.profile = fills[i].profile for p, i in players
 
             list = (sn.cnNum(i+1) + '、' + p.profile.slogan for p,i in players)
-            io.sockets.in(rid).emit 'room:join', list
+            broadcast 'game:player:update', list
             console.log list
+
+    team.on 'update', onTeamChange
+
+    class MessageStore
+        constructor: (@team) ->
+            @logs = {}
+
+        log: (page, from, message)->
+            page = "page-#{page}"
+            unless @logs[page]
+                @logs[page] = {}
+            @logs[page][from.id] = message
+            return
+
+        show: (page, i)->
+            logs = @logs["page-#{page}"]
+            myturn = true
+            # idx = team.index(socketID: from.id)
+
+            d = (player, i)->
+                message = logs[player.socketID]
+                if message
+                    if myturn
+                        result = message
+                    else
+                        result = '**前面人发言后显示您的发言**'
+                else
+                    myturn = false
+                    result = ''
+                "#{sn.cnNum(i+1)}、#{result}"
+            d(player, i) for player, i in @team.members()
+
+    messageStore = new MessageStore(team)
+
+    broadcast = (event, data, target = 'team')->
+        io.sockets.in(rid).emit event, data
+
+    countdown = (evt, count, message, done)->
+        fn = ->
+            broadcast evt, {count: count--, message: message}
+
+            if (count > 0)
+                setTimeout(fn, 1000)
+            else
+                setTimeout(done, 1000)
+        return fn()
+
+
+    prepareGame = ->
+        new Promise (resolve, reject)->
+            console.log assign: 'role'
+            console.log random: 'words'
+            resolve word: 'spy'
+
+    startGame = (game)->
+        done = ->
+            broadcast 'game:deal', {word: 'spy', round: round}
+            game.setMachineState(game.PLAY)
+
+        countdown('game:start:count', 6, '服务器正在出题(%d)', done)
 
 
     game = Stately.machine({
         READY:
-            init: ->
-                console.log init: 'game'
+            in: (player)->
+                team.add player
+                @READY
 
-                @id_team_all   = rid
-                @id_team_spy   = "#{rid}:spy"
-                @id_team_civil = "#{rid}:civil"
-
-                @teams = {}
-                @team = Model.team.one(@id_team_all)
-
-                @team.on 'update', _.bind(onTeamChange, @)
-                return @READY
-
-            addPlayer: (player)->
-                @team.add(player)
-                return @READY
+            out: (player)->
+                team.remove player
+                @READY
 
             go: ->
-                self = this
-                countdown(6, '服务器正在出题(%d)', ->
-                    console.log 'start:game'
-                    self.setMachineState(self.START)
-                    self.START.init()
-                    )
-                @WAIT
+                startGame(@)
+                @INIT
 
-        WAIT:
-            quit: ->@READY
-
-        START:
-            addPlayer: ->@READY
-            speak: (from, msg)->
-                idx = @team.index(socketID: from.id)
-                io.sockets.in(rid).emit 'game:speak', idx + msg
-                @PLAY
-
+        INIT:
             init: ->
-                console.log send: 'words'
-                @PLAY
+                console.log prepare: 'game'
+                @INIT
+
+            out: ->@READY
+
         PLAY:
-            addPlayer: ->@READY
+            out: ->@READY
+
             play: ->
-                @round = if @round == undefined then 1 else ++@round
-                console.log round:@round
+                round++
+                console.log round: round
                 @VOTE
+
+            speak: (from, msg)->
+                messageStore.log(round, from, msg)
+                broadcast 'game:speak', messageStore.show(round)
+                @PLAY
+
         VOTE:
             vote: ->
                 console.log vote:@round
@@ -89,8 +130,7 @@ module.exports = (rid, io)->
                 console.log restart: true
                 @START
     }).bind((event, oldState, newState)->
-        transition = oldState + ' => ' + newState
-        console.log transition
+        console.log "#{oldState}.#{event}() => #{newState}"
         return
     )
 

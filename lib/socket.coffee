@@ -1,32 +1,28 @@
 'use strict'
 _ = require('lodash')
-Model = require('./model')
-context = require('./context')
+Context = require('./context')
+
+Player = require('./model').player
+Game = require('./wis/game')
 
 module.exports = (io, socket) ->
-    # console.log IO: io
-    # console.log socket: socket
-
     sid = socket.handshake.sessionID
     uid = socket.handshake.uid
     rid = '1ntlvb7r' # room id
 
-    game = context.one "game:#{rid}", ()->
-        game = require('./wis/game')(rid, io)
-        game.init()
+    game = Context.one "game:#{rid}", ()->Game(rid, io)
+    player = Player.one(uid: uid, socketID: socket.id, io: io)
 
-    player = Model.player.one(uid: uid, socketID: socket.id, io: io)
-    game.addPlayer(player)
+    game.in(player)
 
-    # GM = require('./wis/gm').one(rid)
-
-    # player = Model.player.one(uid: uid, socketID: socket.id, io: io)
-    # GM.add(player)
-
-    socket.on 'start:game', ()->
+    socket.on 'game:start', ()->
         game.go()
+        game.init()
 
     socket.on 'game:speak', _.wrap socket, (socket, msg)->
         game.speak(socket, msg)
+
+    socket.on 'disconnect', ()->
+        game.out(player)
 
     return

@@ -133,7 +133,7 @@ module.exports = (grunt) ->
                     "lib/**/*.{js,json}"
                 ]
                 tasks: [
-                    "newer:jshint:server"
+                    # "newer:jshint:server"
                     "express:dev"
                     "wait"
                 ]

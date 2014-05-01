@@ -11,16 +11,15 @@ module.exports = (client)->
         remove: (player)->
             _.remove(@players, (p)->p.id == player.id)
             player.socket().leave(@id)
-            console.log removePlayer: player.id, from: @id
+            console.log out: "#{player.id}<<<#{@id}>>>#{player.socketID}"
             @emit 'update', @players
 
         add: (player)->
             _.remove(@players, (p)->p.id == player.id) if @players
             @players.push(player)
             player.socket().join(@id)
-            console.log addplayer: player.id, from: @id
+            console.log in: "#{player.id}<<<#{@id}>>>#{player.socketID}"
             @emit 'update', @players
-            player.socket().on 'disconnect', _.bind(@remove, this, player)
 
         index: (where)->
             _.findIndex(@players, where)
