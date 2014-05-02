@@ -6,6 +6,7 @@ Promise = require('bluebird')
 _ = require('lodash')
 sn = require('./sn')
 Stately = require('stately.js')
+word = require('./word')
 
 module.exports = (rid, io)->
     round = 1
@@ -87,7 +88,9 @@ module.exports = (rid, io)->
 
     startGame = (game)->
         done = ->
-            broadcast 'game:deal', {word: 'spy', round: round}
+            words = word()
+
+            broadcast 'game:deal', {word: words[0], round: round}
             game.setMachineState(game.PLAY)
 
         countdown('game:start:count', 6, '服务器正在出题(%d)', done)
