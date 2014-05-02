@@ -10,89 +10,95 @@ app = angular.module('myNewProjectApp', [
     'app.directives'
 ])
 
-app.config ($routeProvider, $locationProvider) ->
-    $routeProvider.when('/',
-        redirectTo: '/signin'
-        # templateUrl: 'partials/main'
-        # controller: 'MainCtrl'
-    ).when('/ui',
-        templateUrl: 'partials/ui'
-        controller: 'UiCtrl'
-    ).when('/wis',
-        templateUrl: 'partials/wis'
-        controller: 'WisCtrl'
-    ).when('/pm',
-        templateUrl: 'partials/pm'
-        controller: 'MainCtrl'
-    ).when('/signin',
-        templateUrl: 'partials/signin'
-        controller: 'MainCtrl'
-    ).otherwise redirectTo: '/'
-    $locationProvider.html5Mode true
-    return
+app.config [
+    '$routeProvider'
+    '$locationProvider'
+    ($routeProvider, $locationProvider) ->
+        $routeProvider.when('/',
+            redirectTo: '/signin'
+            # templateUrl: 'partials/main'
+            # controller: 'MainCtrl'
+        ).when('/ui',
+            templateUrl: 'partials/ui'
+            controller: 'UiCtrl'
+        ).when('/wis',
+            templateUrl: 'partials/wis'
+            controller: 'WisCtrl'
+        ).when('/pm',
+            templateUrl: 'partials/pm'
+            controller: 'MainCtrl'
+        ).when('/signin',
+            templateUrl: 'partials/signin'
+            controller: 'MainCtrl'
+        ).otherwise redirectTo: '/'
+        $locationProvider.html5Mode true
+        return
+    ]
 
-app.factory 'socket', ($rootScope, $location) ->
-    sio = io.connect()
-    sio.socket.on('error', (reason)->
-        console.log('Unable to connect Socket.IO: ' + reason)
-        $location.path '/signin'
-    )
+app.factory 'socket', [
+    '$rootScope', '$location'
+    ($rootScope, $location) ->
+        sio = io.connect()
+        sio.socket.on('error', (reason)->
+            console.log('Unable to connect Socket.IO: ' + reason)
+            $location.path '/signin'
+        )
 
-    sio.on('connect', ()->
-        console.info('successfully established a working connection \o/')
-    )
+        sio.on('connect', ()->
+            console.info('successfully established a working connection \o/')
+        )
 
-    on: (eventName, callback) ->
-        sio.on eventName, ->
-            args = arguments
-            $rootScope.$apply ->
-                callback.apply sio, args
+        on: (eventName, callback) ->
+            sio.on eventName, ->
+                args = arguments
+                $rootScope.$apply ->
+                    callback.apply sio, args
+                    return
+
                 return
 
             return
 
-        return
+        emit: (eventName, data, callback) ->
+            sio.emit eventName, data, ->
+                args = arguments
+                $rootScope.$apply ->
+                    callback.apply sio, args if callback
+                    return
 
-    emit: (eventName, data, callback) ->
-        sio.emit eventName, data, ->
-            args = arguments
-            $rootScope.$apply ->
-                callback.apply sio, args if callback
                 return
 
             return
+    ]
+# app.factory('Passport', [
+#     '$q', '$cookies', '$cookieStore', 'SDK'
+#     ($q, $cookies, $cookieStore, SDK)->
+#         token = 'user'
+#         signin = '/pages/signin'
+#         console.log $cookies
+#         exports =
+#             check: ->
+#                 defered = $q.defer()
+#                 if $cookies[token]?
+#                     defered.resolve()
+#                 else
+#                     defered.reject(signin)
+#                 defered.promise
 
-        return
+#             auth: (user, pass)->
+#                 promise = SDK.api('passport/auth',  {login:user, pass:pass})
+#                 promise.then(
+#                     (ok)->
+#                         console.log ok
+#                         $cookies[token] = ok.usercode
+#                 )
+#                 return promise
 
-app.factory('Passport', [
-    '$q', '$cookies', '$cookieStore', 'SDK'
-    ($q, $cookies, $cookieStore, SDK)->
-        token = 'user'
-        signin = '/pages/signin'
-        console.log $cookies
-        exports =
-            check: ->
-                defered = $q.defer()
-                if $cookies[token]?
-                    defered.resolve()
-                else
-                    defered.reject(signin)
-                defered.promise
+#             getCurrentUser: ->
+#                 $cookies[token]
 
-            auth: (user, pass)->
-                promise = SDK.api('passport/auth',  {login:user, pass:pass})
-                promise.then(
-                    (ok)->
-                        console.log ok
-                        $cookies[token] = ok.usercode
-                )
-                return promise
+#             logout: ->
+#                 $cookieStore.remove token
 
-            getCurrentUser: ->
-                $cookies[token]
-
-            logout: ->
-                $cookieStore.remove token
-
-        return exports
-])
+#         return exports
+# ])

@@ -434,6 +434,7 @@ module.exports = (grunt) ->
                     logConcurrentOutput: true
 
             dist: [
+                "coffee:dist"
                 "compass:dist"
                 "imagemin"
                 "svgmin"
@@ -510,14 +511,14 @@ module.exports = (grunt) ->
         if target is "debug"
             return grunt.task.run([
                 "clean:server"
-                "bower-install"
+                # "bower-install"
                 "concurrent:server"
                 "autoprefixer"
                 "concurrent:debug"
             ])
         grunt.task.run [
             "clean:server"
-            "bower-install"
+            # "bower-install"
             "concurrent:server"
             "autoprefixer"
             "express:dev"
@@ -554,7 +555,8 @@ module.exports = (grunt) ->
 
     grunt.registerTask "build", [
         "clean:dist"
-        "bower-install"
+        # "coffee:dist"
+        # "bower-install"
         "useminPrepare"
         "concurrent:dist"
         "autoprefixer"
