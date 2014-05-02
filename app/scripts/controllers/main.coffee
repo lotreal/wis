@@ -3,12 +3,17 @@ angular.module('myNewProjectApp').controller 'MainCtrl', [
     '$scope', '$http', '$location'
     ($scope, $http, $location) ->
         $scope.username = '罗涛'
+
         $scope.login = ->
             $http.post('/login', {name: $scope.username})
             .success((res)->
                 [err, token] = res
-                return console.log err if err
-                console.log token
+
+                if err
+                    console.log err
+                    alert(err)
+                    return
+
                 $location.path '/wis'
             )
             .error((err)->
@@ -16,11 +21,6 @@ angular.module('myNewProjectApp').controller 'MainCtrl', [
             )
 
         $scope.isSpecificPage = ->
-            false
-
-        # $http.get('/api/awesomeThings').success (awesomeThings) ->
-        #     $scope.awesomeThings = awesomeThings
-        #     return
-
+            true
         return
     ]

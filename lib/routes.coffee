@@ -15,11 +15,14 @@ module.exports = (app) ->
         )
 
     app.post '/login', (req, res)->
+        res.clearCookie('wis:uid')
         passport.login(req.body.name)
         .then(
             (token)->
                 req.session.token = token
+                res.cookie('wis:uid', token)
                 res.json [null, token: token]
+
             (err)->
                 req.session.token = null
                 res.json [err]
