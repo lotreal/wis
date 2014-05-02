@@ -3,7 +3,7 @@ angular.module('WisApp').controller 'WisCtrl', [
     '$scope', 'socketFactory', '$routeParams'
     ($scope, socketFactory, $routeParams) ->
         socket = socketFactory({
-            ioSocket: io.connect('', query: "rid=123")
+            ioSocket: io.connect('', query: "rid=1ntlvb7r&token=t")
         })
 
         # console.log $routeParams.roomId

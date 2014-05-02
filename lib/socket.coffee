@@ -8,9 +8,10 @@ Game = require('./wis/game')
 module.exports = (io, socket) ->
     sid = socket.handshake.sessionID
     uid = socket.handshake.uid
-    rid = '1ntlvb7r' # room id
 
-    game = Context.one "game:#{rid}", ()->Game(rid, io)
+    roomId = socket.handshake.query.rid
+
+    game = Context.one "game:#{roomId}", ()->Game(roomId, io)
     player = Player.one(uid: uid, socketID: socket.id, io: io)
 
     game.in(player)

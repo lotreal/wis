@@ -7,62 +7,28 @@ _ = require('lodash')
 sn = require('./sn')
 Stately = require('stately.js')
 word = require('./word')
+MessageStore = require('./store').MessageStore
 
 module.exports = (rid, io)->
     round = 1
-    id_team_all   = rid
+
     id_team_spy   = "#{rid}:spy"
     id_team_civil = "#{rid}:civil"
-    team = Model.team.one(id_team_all)
 
-    roomSetting =
-        teamname: sn.cnTeamname()
+    team = Model.team.one(rid)
+
+    room =
+        team: sn.cnTeamname()
 
     onTeamChange = (players)->
         Promise.all((Model.user.id(p.id) for p in players)).then (fills)->
             p.profile = fills[i].profile for p, i in players
 
             list = (sn.cnNum(i+1) + '、' + p.profile.slogan for p,i in players)
-            broadcast 'game:player:update', {players: list, teamname: roomSetting.teamname}
+            broadcast 'game:player:update', {players: list, teamname: room.team}
             console.log list
 
     team.on 'update', onTeamChange
-
-    class MessageStore
-        constructor: (@team) ->
-            @logs = {}
-            @full = {}
-
-        log: (page, from, message)->
-            page = "page-#{page}"
-            unless @logs[page]
-                @logs[page] = {}
-            @logs[page][from.id] = message
-            return
-
-        vote: (round, from, target)->
-
-        show: (page, i)->
-            logs = @logs["page-#{page}"]
-            myturn = true
-
-            d = (player, i)->
-                message = logs[player.socketID]
-                if message
-                    if myturn
-                        result = message
-                    else
-                        result = '**前面人发言后显示您的发言**'
-                else
-                    myturn = false
-                    result = ''
-                "#{sn.cnNum(i+1)}、#{result}"
-            messages = (d(player, i) for player, i in @team.members())
-            @full["page-#{page}"] = myturn
-            return messages
-
-        fullpage: (page)->
-            @full["page-#{page}"]
 
     messageStore = new MessageStore(team)
 
