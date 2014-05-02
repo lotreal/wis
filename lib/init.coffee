@@ -70,6 +70,7 @@ module.exports = (()->
     find = (name)->
         client.hget INDEX_USER_NAME, name, (err, uid)->
             client.hgetall KEY_USER(uid), (err, user)->
+                return console.log user: user unless user
                 user.id = uid
                 console.log user
 
@@ -77,7 +78,7 @@ module.exports = (()->
         client.hget INDEX_USER_NAME, name, (err, uid)->
             client.hmset KEY_USER(uid), profile, redis.print
 
-    # init()
+    init()
     find '欧应燎'
 
     update '邓娟', slogan: '邓艾心知战地宽，娟娟戏蝶过闲幔。'
