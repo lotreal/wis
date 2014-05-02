@@ -6,6 +6,7 @@ app = angular.module('myNewProjectApp', [
 
     # 3rd Party Modules
     'ui.bootstrap'
+    'app.localization'
     'app.directives'
 ])
 
