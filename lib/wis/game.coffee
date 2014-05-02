@@ -14,12 +14,15 @@ module.exports = (rid, io)->
     id_team_civil = "#{rid}:civil"
     team = Model.team.one(id_team_all)
 
+    roomSetting =
+        teamname: sn.cnTeamname()
+
     onTeamChange = (players)->
         Promise.all((Model.user.id(p.id) for p in players)).then (fills)->
             p.profile = fills[i].profile for p, i in players
 
             list = (sn.cnNum(i+1) + '、' + p.profile.slogan for p,i in players)
-            broadcast 'game:player:update', list
+            broadcast 'game:player:update', {players: list, teamname: roomSetting.teamname}
             console.log list
 
     team.on 'update', onTeamChange
@@ -27,6 +30,7 @@ module.exports = (rid, io)->
     class MessageStore
         constructor: (@team) ->
             @logs = {}
+            @full = {}
 
         log: (page, from, message)->
             page = "page-#{page}"
@@ -35,10 +39,11 @@ module.exports = (rid, io)->
             @logs[page][from.id] = message
             return
 
+        vote: (round, from, target)->
+
         show: (page, i)->
             logs = @logs["page-#{page}"]
             myturn = true
-            # idx = team.index(socketID: from.id)
 
             d = (player, i)->
                 message = logs[player.socketID]
@@ -51,7 +56,12 @@ module.exports = (rid, io)->
                     myturn = false
                     result = ''
                 "#{sn.cnNum(i+1)}、#{result}"
-            d(player, i) for player, i in @team.members()
+            messages = (d(player, i) for player, i in @team.members())
+            @full["page-#{page}"] = myturn
+            return messages
+
+        fullpage: (page)->
+            @full["page-#{page}"]
 
     messageStore = new MessageStore(team)
 
@@ -98,10 +108,6 @@ module.exports = (rid, io)->
                 @INIT
 
         INIT:
-            init: ->
-                console.log prepare: 'game'
-                @INIT
-
             out: ->@READY
 
         PLAY:
@@ -115,12 +121,16 @@ module.exports = (rid, io)->
             speak: (from, msg)->
                 messageStore.log(round, from, msg)
                 broadcast 'game:speak', messageStore.show(round)
-                @PLAY
+                console.log full: messageStore.fullpage(round)
+                return if messageStore.fullpage(round) then @VOTE else @PLAY
 
         VOTE:
-            vote: ->
-                console.log vote:@round
-                if @round == 2
+            out: ->@READY
+
+            vote: (from, target)->
+                console.log vote:round
+                messageStore.vote(round, from, target)
+                if round == 2
                     console.log result: true
                     return @OVER
                 else

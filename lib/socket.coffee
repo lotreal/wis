@@ -17,10 +17,12 @@ module.exports = (io, socket) ->
 
     socket.on 'game:start', ()->
         game.go()
-        game.init()
 
     socket.on 'game:speak', _.wrap socket, (socket, msg)->
         game.speak(socket, msg)
+
+    socket.on 'game:vote', _.wrap socket, (socket, target)->
+        game.vote(socket, target)
 
     socket.on 'disconnect', ()->
         game.out(player)

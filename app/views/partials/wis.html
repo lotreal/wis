@@ -22,7 +22,9 @@
             <div class="panel panel-default">
                 <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> {{subtitle}}</strong></div>
                 <ul class="list-group">
-                    <li class="list-group-item" ng-repeat="item in players">
+                  <li class="list-group-item" ng-repeat="item in players"
+                      ng-click="vote($index)"
+                      >
                         {{item}}
                     </li>
                     <!-- <li class="list-group-item">

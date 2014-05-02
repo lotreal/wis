@@ -6,7 +6,7 @@ exports.cnNum = (n)->
     a[n-1]
 
 exports.cnTeamname = (n)->
-    n = '%s' if n == null
+    n = '%s' unless n
     prefix = [
         '天朝'
         '东北'
@@ -19,8 +19,7 @@ exports.cnTeamname = (n)->
         '天山'
         '华山'
         '正大'
-        '圣域'
-        '虚空'
+        '圣战'
         '逗比'
         'LOL'
         '江南'
@@ -34,8 +33,10 @@ exports.cnTeamname = (n)->
         '春秋'
         '大唐'
         '战国'
+        '绝代'
         ]
     postfix = [
+        '娇'
         '杰'
         '俊'
         '霸'
@@ -45,11 +46,9 @@ exports.cnTeamname = (n)->
         '少'
         '剑'
         '英'
-        '仙'
         '怪'
         '圣'
         '雄'
-        '壮士'
         '豪'
         '壕'
         '基'
