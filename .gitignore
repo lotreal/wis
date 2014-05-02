@@ -9,3 +9,4 @@ heroku
 dist
 server.js
 lib/**/*.js
+rule-*.txt
