@@ -434,6 +434,7 @@ module.exports = (grunt) ->
                     logConcurrentOutput: true
 
             dist: [
+                "coffee:server"
                 "coffee:dist"
                 "compass:dist"
                 "imagemin"
@@ -505,7 +506,7 @@ module.exports = (grunt) ->
             return grunt.task.run([
                 "build"
                 "express:prod"
-                "open"
+                # "open"
                 "express-keepalive"
             ])
         if target is "debug"
