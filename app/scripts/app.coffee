@@ -1,11 +1,12 @@
 'use strict'
-app = angular.module('myNewProjectApp', [
+app = angular.module('WisApp', [
     # Angular modules
     'ngRoute'
     'ngCookies'
     'ngAnimate'
 
     # 3rd Party Modules
+    'btford.socket-io'
     'ui.bootstrap'
     'app.localization'
     'app.directives'
@@ -30,41 +31,6 @@ app.config [
         return
     ]
 
-app.factory 'socket', [
-    '$rootScope', '$location', '$cookies'
-    ($rootScope, $location, $cookies) ->
-        sio = io.connect()
-
-        sio.socket.on('error', (reason)->
-            console.log('Unable to connect Socket.IO: ' + reason)
-        )
-
-        sio.on('connect', ()->
-            console.info('successfully established a working connection \o/')
-        )
-
-        on: (eventName, callback) ->
-            sio.on eventName, ->
-                args = arguments
-                $rootScope.$apply ->
-                    callback.apply sio, args
-                    return
-
-                return
-
-            return
-
-        emit: (eventName, data, callback) ->
-            sio.emit eventName, data, ->
-                args = arguments
-                $rootScope.$apply ->
-                    callback.apply sio, args if callback
-                    return
-
-                return
-
-            return
-]
 app.run [
     '$rootScope', '$location', '$cookies'
     ($rootScope, $location, $cookies)->

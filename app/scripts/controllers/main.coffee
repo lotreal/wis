@@ -1,5 +1,5 @@
 'use strict'
-angular.module('myNewProjectApp').controller 'MainCtrl', [
+angular.module('WisApp').controller 'MainCtrl', [
     '$scope', '$http', '$location'
     ($scope, $http, $location) ->
         $scope.username = '罗涛'
