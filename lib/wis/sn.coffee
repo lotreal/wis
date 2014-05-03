@@ -8,6 +8,9 @@ exports.cnNum = (n)->
 exports.cnTeamname = (n)->
     n = '%s' unless n
     prefix = [
+        '戊戌'
+        '扬州'
+        '竹林'
         '天朝'
         '东北'
         '西南'
@@ -19,9 +22,6 @@ exports.cnTeamname = (n)->
         '天山'
         '华山'
         '正大'
-        '圣战'
-        '逗比'
-        'LOL'
         '江南'
         '平顶山'
         '双龙山'
@@ -36,7 +36,9 @@ exports.cnTeamname = (n)->
         '绝代'
         ]
     postfix = [
-        '娇'
+        '贤'
+        '君子'
+        '骄'
         '杰'
         '俊'
         '霸'
@@ -51,7 +53,6 @@ exports.cnTeamname = (n)->
         '雄'
         '豪'
         '壕'
-        '基'
         ]
     # n = cnNum(n) if _.isNumber(n)
     _.sample(prefix) + n + _.sample(postfix)

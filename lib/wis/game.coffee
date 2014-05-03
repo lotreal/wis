@@ -30,7 +30,7 @@ module.exports = (rid, io)->
 
     team.on 'update', onTeamChange
 
-    messageStore = new MessageStore(team)
+    logger = new MessageStore(team)
 
     broadcast = (event, data, target = 'team')->
         io.sockets.in(rid).emit event, data
@@ -55,15 +55,19 @@ module.exports = (rid, io)->
     startGame = (game)->
         done = ->
             words = word()
-
+            round = 1
             broadcast 'game:deal', {word: words[0], round: round}
             game.setMachineState(game.PLAY)
 
-        countdown('game:start:count', 6, '服务器正在出题(%d)', done)
+        countdown('game:start:count', 2, '服务器正在出题(%d)', done)
 
 
     game = Stately.machine({
         READY:
+            debug: ->
+                logger.prepareVote()
+                @VOTE
+
             in: (player)->
                 team.add player
                 @READY
@@ -80,29 +84,35 @@ module.exports = (rid, io)->
             out: ->@READY
 
         PLAY:
+            init: ->
+                broadcast 'game:play:begin', round++
+                @PLAY
+
             out: ->@READY
 
-            play: ->
-                round++
-                console.log round: round
-                @VOTE
-
             speak: (from, msg)->
-                messageStore.log(round, from, msg)
-                broadcast 'game:speak', messageStore.show(round)
-                return if messageStore.fullpage(round) then @VOTE else @PLAY
+                logger.log(round, from, msg)
+                broadcast 'game:speak', logger.show(round)
+
+                # if all player speaked
+                if logger.fullpage(round)
+                    broadcast 'game:vote:begin'
+                    logger.prepareVote()
+                    return @VOTE
+                else
+                    return @PLAY
 
         VOTE:
             out: ->@READY
 
             vote: (from, target)->
-                console.log vote:round
-                messageStore.vote(round, from, target)
-                if round == 2
-                    console.log result: true
-                    return @OVER
-                else
+                logger.vote(round, from, target)
+                if logger.completeVote()
+                    broadcast 'game:vote:result', logger.currentVote.result()
                     return @PLAY
+                else
+                    return @VOTE
+
         OVER:
             restart: ->
                 console.log restart: true
@@ -111,6 +121,9 @@ module.exports = (rid, io)->
         console.log "#{oldState}.#{event}() => #{newState}"
         return
     )
+
+    game.onPLAY = (event, oldState, newState)->
+        game.init() if oldState != newState
 
     # game.addPlayer('lot').addPlayer('nine').go().init().play().vote().play().vote().restart()
     return game

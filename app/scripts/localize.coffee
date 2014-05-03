@@ -27,7 +27,6 @@ angular.module('app.localization', [])
 
             successCallback: (data) ->
                 localize.dictionary = data
-                console.log localize.dictionary
                 localize.resourceFileLoaded = true
                 $rootScope.$broadcast('localizeResourcesUpdated')
 

@@ -14,7 +14,7 @@ angular.module('WisApp').controller 'MainCtrl', [
                     alert(err)
                     return
 
-                $location.path '/wis'
+                $location.path '/1ntlvb7r'
             )
             .error((err)->
                 console.log err

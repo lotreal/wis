@@ -1,9 +1,11 @@
 'use strict'
 sn = require('./sn')
+Vote = require('./vote')
 
 class MessageStore
     constructor: (@team) ->
         @logs = {}
+        @votes = []
         @full = {}
 
     log: (page, from, message)->
@@ -13,7 +15,14 @@ class MessageStore
         @logs[page][from.id] = message
         return
 
+    prepareVote: ->
+        @currentVote = new Vote(@team.length())
+
     vote: (round, from, target)->
+        @currentVote.vote(@team.index(socketID: from.id), target)
+
+    completeVote: ->
+        return @currentVote.end().end
 
     show: (page, i)->
         logs = @logs["page-#{page}"]

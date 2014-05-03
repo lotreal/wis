@@ -26,6 +26,8 @@ module.exports = (client)->
 
         members: ()->@players
 
+        length: ()->@players.length
+
     return {
         one: (id)->
             context.one('team:'+id, ()->new Team(id))

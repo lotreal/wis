@@ -16,6 +16,9 @@ module.exports = (io, socket) ->
 
     game.in(player)
 
+    socket.on 'game:debug', ()->
+        game.debug()
+
     socket.on 'game:start', ()->
         game.go()
 

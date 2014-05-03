@@ -28,14 +28,10 @@ module.exports = (app) ->
                 res.json [err]
         )
 
-    # Server API Routes
-    app.get '/api/awesomeThings', api.awesomeThings
-
     # All undefined api routes should return a 404
     app.get '/api/*', (req, res) ->
         res.send 404
         return
-
 
     # All other routes to use Angular routing in app/scripts/app.js
     app.get '/partials/*', index.partials
