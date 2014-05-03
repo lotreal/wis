@@ -12,26 +12,9 @@ word = require('./word')
 MessageStore = require('./store').MessageStore
 
 module.exports = (rid, io)->
-    updatePlayer = (players)->
-        list = (sn.cnNum(i+1) + '、' + p.profile.slogan for p,i in players)
-        broadcast 'game:player:update', list
-
-    team = context.one('team:'+rid, ()->new Team(rid))
-    team.on 'update', updatePlayer
-
-    round = 1
-
-    id_team_spy   = "#{rid}:spy"
-    id_team_civil = "#{rid}:civil"
-
-    logger = new MessageStore(team)
-
-    broadcast = (event, data, target = 'team')->
-        io.sockets.in(rid).emit event, data
-
-    countdown = (evt, count, message, done)->
+    countdown = (team, evt, count, message, done)->
         fn = ->
-            broadcast evt, {count: count--, message: message}
+            team.broadcast evt, {count: count--, message: message}
 
             if (count > 0)
                 setTimeout(fn, 1000)
@@ -39,39 +22,43 @@ module.exports = (rid, io)->
                 setTimeout(done, 1000)
         return fn()
 
+    updatePlayer = (team)->
+        list = (sn.cnNum(i+1) + '、' + p.profile.slogan for p,i in team.players)
+        team.broadcast 'game:player:update', list
 
-    prepareGame = ->
-        new Promise (resolve, reject)->
-            console.log assign: 'role'
-            console.log random: 'words'
-            resolve word: 'spy'
-
-    startGame = (game)->
+    startGame = (team, game)->
         done = ->
             words = word()
-            round = 1
-            broadcast 'game:deal', {word: words[0], round: round}
+            team.broadcast 'game:deal', word: words[0]
             game.setMachineState(game.PLAY)
 
-        countdown('game:start:count', 2, '服务器正在出题(%d)', done)
+        countdown(team, 'game:start:count', 2, '服务器正在出题(%d)', done)
 
 
     game = Stately.machine({
         READY:
+            init: ->
+                @team = context.one('team:'+rid, ()->new Team(rid, io))
+                @team.on 'update', updatePlayer
+                @logger = new MessageStore(@team)
+
+                @round = 1
+                @READY
+
             debug: ->
-                logger.prepareVote()
+                @logger.prepareVote()
                 @VOTE
 
             in: (player)->
-                team.add player
+                @team.add player
                 @READY
 
             out: (player)->
-                team.remove player
+                @team.remove player
                 @READY
 
             go: ->
-                startGame(@)
+                startGame(@team, @)
                 @INIT
 
         INIT:
@@ -79,19 +66,19 @@ module.exports = (rid, io)->
 
         PLAY:
             init: ->
-                broadcast 'game:play:begin', round++
+                @team.broadcast 'game:play:begin', @round++
                 @PLAY
 
             out: ->@READY
 
             speak: (from, msg)->
-                logger.log(round, from, msg)
-                broadcast 'game:speak', logger.show(round)
+                @logger.log(@round, from, msg)
+                @team.broadcast 'game:speak', @logger.show(@round)
 
                 # if all player speaked
-                if logger.fullpage(round)
-                    broadcast 'game:vote:begin'
-                    logger.prepareVote()
+                if @logger.fullpage(@round)
+                    @team.broadcast 'game:vote:begin'
+                    @logger.prepareVote()
                     return @VOTE
                 else
                     return @PLAY
@@ -100,9 +87,9 @@ module.exports = (rid, io)->
             out: ->@READY
 
             vote: (from, target)->
-                logger.vote(round, from, target)
-                if logger.completeVote()
-                    broadcast 'game:vote:result', logger.currentVote.result()
+                @logger.vote(@round, from, target)
+                if @logger.completeVote()
+                    @team.broadcast 'game:vote:result', @logger.currentVote.result()
                     return @PLAY
                 else
                     return @VOTE
@@ -112,12 +99,13 @@ module.exports = (rid, io)->
                 console.log restart: true
                 @START
     }).bind((event, oldState, newState)->
+        game.init() if oldState != newState
         console.log "#{oldState}.#{event}() => #{newState}"
         return
     )
-
-    game.onPLAY = (event, oldState, newState)->
-        game.init() if oldState != newState
+    game.init()
+    # game.onPLAY = (event, oldState, newState)->
+    #     game.init() if oldState != newState
 
     # game.addPlayer('lot').addPlayer('nine').go().init().play().vote().play().vote().restart()
     return game
