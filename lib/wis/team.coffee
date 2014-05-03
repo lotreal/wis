@@ -21,6 +21,9 @@ module.exports = (->
             console.log in: "#{player.id}<<<#{@id}>>>#{player.socketID}"
             @emit 'update', @
 
+        batchAdd: (players)->
+            @add(p) for p in players
+
         index: (where)->
             _.findIndex(@players, where)
 

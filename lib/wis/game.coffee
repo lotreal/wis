@@ -26,10 +26,29 @@ module.exports = (rid, io)->
         list = (p.profile.slogan for p in team.members())
         team.broadcast 'game:player:update', Fmt.list(list)
 
+    # TODO move to utils
+    sliceRnd = (collection, n)->
+        head = _.sample(collection, n)
+        tail = _.filter(collection, (i)->!_.contains(head, i))
+        return [head, tail]
+
     startGame = (team, game)->
         done = ->
+            players = game.team.members()
+            [spy, civil] = sliceRnd([0..team.length()], 1)
+
+            civilTeam = new Team(game.rid+'-civil', io)
+            spyTeam   = new Team(game.rid+'-spy',   io)
+            civilTeam.batchAdd(_.filter(players, (p, i)->_.contains(civil, i)))
+            spyTeam.batchAdd(_.filter(players, (p, i)->_.contains(spy, i)))
+
             words = word()
-            team.broadcast 'game:deal', word: words[0]
+            civilTeam.broadcast 'game:deal', word: words[0]
+            spyTeam.broadcast 'game:deal', word: words[1]
+
+            game.civil = civilTeam
+            game.spy   = spyTeam
+
             game.setMachineState(game.PLAY)
 
         countdown(team, 'game:start:count', 2, '服务器正在出题(%d)', done)
