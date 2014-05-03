@@ -1,6 +1,7 @@
 'use strict'
 context = require('../context')
 Model = require('../model')
+Team = require('./team')
 io = context.get('io')
 Promise = require('bluebird')
 _ = require('lodash')
@@ -15,7 +16,7 @@ module.exports = (rid, io)->
     id_team_spy   = "#{rid}:spy"
     id_team_civil = "#{rid}:civil"
 
-    team = Model.team.one(rid)
+    team = context.one('team:'+rid, ()->new Team(rid))
 
     room =
         team: sn.cnTeamname()

@@ -1,9 +1,9 @@
 'use strict'
+
 _ = require('lodash')
-context = require('../context')
 events = require('events')
 
-module.exports = (client)->
+module.exports = (->
     class Team extends events.EventEmitter
         constructor: (@id) ->
             @players = []
@@ -28,7 +28,5 @@ module.exports = (client)->
 
         length: ()->@players.length
 
-    return {
-        one: (id)->
-            context.one('team:'+id, ()->new Team(id))
-    }
+    return Team
+)()
