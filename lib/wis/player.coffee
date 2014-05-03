@@ -9,6 +9,7 @@ module.exports = (->
             @id = options.uid
             @socketID = options.socketID
             @io = options.io
+            @state = 'OK'
 
         getSocket: ->
             @io.sockets.sockets[@socketID]

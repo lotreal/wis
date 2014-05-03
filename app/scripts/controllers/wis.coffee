@@ -62,5 +62,8 @@ angular.module('WisApp').controller 'WisCtrl', [
             console.log msg
             $scope.list = msg
 
+        socket.on 'game:over', (data)->
+            $scope.list = data
+
         return
 ]

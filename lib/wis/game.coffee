@@ -39,8 +39,20 @@ module.exports = (rid, io)->
 
             civilTeam = new Team(game.rid+'-civil', io)
             spyTeam   = new Team(game.rid+'-spy',   io)
-            civilTeam.batchAdd(_.filter(players, (p, i)->_.contains(civil, i)))
-            spyTeam.batchAdd(_.filter(players, (p, i)->_.contains(spy, i)))
+            civilTeam.batchAdd(_.filter(players, (p, i)->
+                if _.contains(civil, i)
+                    p.role = 'CIVIL'
+                    return true
+                else
+                    return false
+            ))
+            spyTeam.batchAdd(_.filter(players, (p, i)->
+                if _.contains(spy, i)
+                    p.role = 'SPY'
+                    return true
+                else
+                    return false
+            ))
 
             words = word()
             civilTeam.broadcast 'game:deal', word: words[0]
@@ -108,6 +120,7 @@ module.exports = (rid, io)->
             vote: (from, target)->
                 @logger.vote(@round, from, target)
                 if @logger.completeVote()
+                    players = @team.members()
                     messages = @logger.show(@round)
                     result = @logger.currentVote.result()
 
@@ -118,10 +131,33 @@ module.exports = (rid, io)->
                         V = result[i]
                         voteme = (icon+Fmt.N(v) for v in V.voted).join(' ')
                         line = "#{m} <- 共 #{V.getted} 票: (#{voteme}) "
-                        line = line + '【最高票】' if V.hit
+                        if V.hit
+                            line = line + '【最高票】'
+                            players[i].state = 'OUT'
+                            @team.remove(players[i])
                         list.push(line)
-
+                    #console.log players
                     @team.broadcast 'game:vote:result', Fmt.list(list)
+
+                    win = (team)->
+                        leftSpy = (_.filter team.members(), (p)->p.role=='SPY')
+                        return 'CIVIL' if leftSpy == 0
+                        return 'SPY' if team.length() <=3
+                        return false
+
+                    gameover = (team, win)->
+                        print = (p)->
+                            line = p.profile.slogan
+                            line += p.role
+                            line += (if p.role == win then '【赢】' else '【输】')
+                            return line
+                        list = (print(p) for p in team.members())
+                        team.broadcast 'game:over', Fmt.list(list)
+
+                    whowin = win(@team)
+                    if whowin
+                        gameover(@team, whowin)
+                        @OVER
 
                     self = @
                     done = ->
