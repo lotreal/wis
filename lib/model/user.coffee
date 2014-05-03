@@ -7,6 +7,8 @@ module.exports = (client)->
 
     KEY_USER = (uid)->"wis:user:#{uid}"
 
+    defaultProfile = name: '无名', slogan: '天地生'
+
     save = (user)->
         uid = uuid()
         client.hmset(KEY_USER(uid), user)

@@ -1,6 +1,7 @@
 'use strict'
 context = require('../context')
 Model = require('../model')
+User = Model.user
 Team = require('./team')
 io = context.get('io')
 Promise = require('bluebird')
@@ -11,25 +12,23 @@ word = require('./word')
 MessageStore = require('./store').MessageStore
 
 module.exports = (rid, io)->
+    updatePlayer = (players)->
+        list = (sn.cnNum(i+1) + '、' + p.profile.slogan for p,i in players)
+        broadcast 'game:player:update', {players: list, teamname: room.team}
+
+    team = context.one('team:'+rid, ()->new Team(rid))
+    team.on 'update', updatePlayer
+
     round = 1
 
     id_team_spy   = "#{rid}:spy"
     id_team_civil = "#{rid}:civil"
 
-    team = context.one('team:'+rid, ()->new Team(rid))
 
     room =
         team: sn.cnTeamname()
 
-    onTeamChange = (players)->
-        Promise.all((Model.user.id(p.id) for p in players)).then (fills)->
-            p.profile = fills[i].profile for p, i in players
 
-            list = (sn.cnNum(i+1) + '、' + p.profile.slogan for p,i in players)
-            broadcast 'game:player:update', {players: list, teamname: room.team}
-            console.log list
-
-    team.on 'update', onTeamChange
 
     logger = new MessageStore(team)
 

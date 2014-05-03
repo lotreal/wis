@@ -2,7 +2,7 @@
 _ = require('lodash')
 Context = require('./context')
 
-Player = require('./model').player
+Player = require('./wis/player')
 Game = require('./wis/game')
 
 module.exports = (io, socket) ->
@@ -12,9 +12,9 @@ module.exports = (io, socket) ->
     roomId = socket.handshake.query.rid
 
     game = Context.one "game:#{roomId}", ()->Game(roomId, io)
-    player = Player.one(uid: uid, socketID: socket.id, io: io)
 
-    game.in(player)
+    player = new Player(uid: uid, socketID: socket.id, io: io)
+    player.fillout().then(->game.in(player))
 
     socket.on 'game:debug', ()->
         game.debug()
