@@ -26,7 +26,7 @@ angular.module('WisApp').controller 'WisCtrl', [
             socket.emit 'game:start', {}
 
         $scope.vote = (idx)->
-            console.log 'vote'+idx
+            $scope.subtitle = '您已投票给 ' + (idx+1) + ' 号，等其他人投票后显示投票结果。'
             socket.emit 'game:vote', idx
 
         $scope.keyPress = (evt)->
@@ -46,16 +46,17 @@ angular.module('WisApp').controller 'WisCtrl', [
 
         socket.on 'game:deal', (game)->
             $scope.title = game.word
-            $scope.list = []
 
         socket.on 'game:play:begin', (round)->
             $scope.subtitle = sprintf('现代汉语词典（第 %d 版）', round)
+            $scope.list = []
 
-        socket.on 'game:vote:begin', (vote)->
-            console.log vote
+        socket.on 'game:vote:begin', ->
+            $scope.subtitle = '请点选投票'
 
         socket.on 'game:vote:result', (vote)->
-            console.log vote
+            $scope.subtitle = '投票结果'
+            $scope.list = vote
 
         socket.on 'game:speak', (msg)->
             console.log msg

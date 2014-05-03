@@ -6,10 +6,10 @@ Team = require('./team')
 io = context.get('io')
 Promise = require('bluebird')
 _ = require('lodash')
-sn = require('./sn')
+Fmt = require('./sn')
 Stately = require('stately.js')
 word = require('./word')
-MessageStore = require('./store').MessageStore
+Logger = require('./store')
 
 module.exports = (rid, io)->
     countdown = (team, evt, count, message, done)->
@@ -23,8 +23,8 @@ module.exports = (rid, io)->
         return fn()
 
     updatePlayer = (team)->
-        list = (sn.cnNum(i+1) + '、' + p.profile.slogan for p,i in team.players)
-        team.broadcast 'game:player:update', list
+        list = (p.profile.slogan for p in team.members())
+        team.broadcast 'game:player:update', Fmt.list(list)
 
     startGame = (team, game)->
         done = ->
@@ -40,7 +40,7 @@ module.exports = (rid, io)->
             init: ->
                 @team = context.one('team:'+rid, ()->new Team(rid, io))
                 @team.on 'update', updatePlayer
-                @logger = new MessageStore(@team)
+                @logger = new Logger(@team)
 
                 @round = 1
                 @READY
@@ -73,7 +73,7 @@ module.exports = (rid, io)->
 
             speak: (from, msg)->
                 @logger.log(@round, from, msg)
-                @team.broadcast 'game:speak', @logger.show(@round)
+                @team.broadcast 'game:speak', Fmt.list(@logger.show(@round))
 
                 # if all player speaked
                 if @logger.fullpage(@round)
@@ -89,8 +89,28 @@ module.exports = (rid, io)->
             vote: (from, target)->
                 @logger.vote(@round, from, target)
                 if @logger.completeVote()
-                    @team.broadcast 'game:vote:result', @logger.currentVote.result()
-                    return @PLAY
+                    messages = @logger.show(@round)
+                    result = @logger.currentVote.result()
+
+                    icon = '<span class="glyphicon glyphicon-hand-left"></span>'
+                    icon = ''
+                    list = []
+                    for m, i in messages
+                        V = result[i]
+                        voteme = (icon+Fmt.N(v) for v in V.voted).join(' ')
+                        line = "#{m} <- 共 #{V.getted} 票: (#{voteme}) "
+                        line = line + '【最高票】' if V.hit
+                        list.push(line)
+
+                    @team.broadcast 'game:vote:result', Fmt.list(list)
+
+                    self = @
+                    done = ->
+                        self.setMachineState(self.PLAY)
+
+                    countdown(@team, 'game:start:count', 9, '投票结果(%d)', done)
+
+                    return @VOTE
                 else
                     return @VOTE
 
