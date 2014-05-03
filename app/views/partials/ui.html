@@ -1,0 +1,51 @@
+<div class="container">
+  <alert type="danger">alert.msg</alert>
+  <!-- Single button -->
+  <div class="btn-group" dropdown is-open="status.isopen">
+    <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
+      Button dropdown <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" role="menu">
+      <li><a href="#">Action</a></li>
+      <li><a href="#">Another action</a></li>
+      <li><a href="#">Something else here</a></li>
+      <li class="divider"></li>
+      <li><a href="#">Separated link</a></li>
+    </ul>
+  </div>
+
+  <div ng-controller="ModalDemoCtrl">
+    <script type="text/ng-template" id="myModalContent.html">
+      <div class="modal-header">
+        <h3 class="modal-title">I'm a modal!</h3>
+      </div>
+      <div class="modal-body">
+        <ul>
+          <li ng-repeat="item in items">
+            <a ng-click="selected.item = item">{{ item }}</a>
+          </li>
+        </ul>
+        Selected: <b>{{ selected.item }}</b>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+      </div>
+    </script>
+
+    <button class="btn btn-default" ng-click="open()">Open me!</button>
+    <button class="btn btn-default" ng-click="open('lg')">Large modal</button>
+    <button class="btn btn-default" ng-click="open('sm')">Small modal</button>
+    <div ng-show="selected">Selection from a modal: {{ selected }}</div>
+  </div>
+
+  <input type="text" value="Click me!" popover="I appeared on focus! Click away and I'll vanish..."  popover-trigger="focus" class="form-control">
+  <button class="btn btn-sm btn-primary" type="button" ng-click="randomStacked()">Randomize</button>
+
+  <div class="form-group">
+    <div class="col-sm-10">
+      <input type="text" class="form-control">
+      <span class="icon glyphicon glyphicon-star"></span>
+    </div>
+  </div>
+</div>

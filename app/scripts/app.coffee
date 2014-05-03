@@ -18,8 +18,9 @@ app.config [
     ($routeProvider, $locationProvider) ->
         $routeProvider.when('/',
             redirectTo: '/signin'
-            # templateUrl: 'partials/main'
-            # controller: 'MainCtrl'
+        ).when('/ui',
+            templateUrl: 'partials/ui'
+            controller: 'MainCtrl'
         ).when('/signin',
             templateUrl: 'partials/signin'
             controller: 'MainCtrl'

@@ -339,11 +339,10 @@ module.exports = (grunt) ->
         htmlmin:
             dist:
                 options: {}
-
-                #collapseWhitespace: true,
-                #collapseBooleanAttributes: true,
-                #removeCommentsFromCDATA: true,
-                #removeOptionalTags: true
+                    # collapseWhitespace: true
+                    # collapseBooleanAttributes: true
+                    # removeCommentsFromCDATA: true
+                    # removeOptionalTags: true
                 files: [
                     expand: true
                     cwd: "<%= yeoman.app %>/views"
@@ -395,7 +394,14 @@ module.exports = (grunt) ->
                         dot: true
                         cwd: "<%= yeoman.app %>/views"
                         dest: "<%= yeoman.dist %>/views"
-                        src: "**/*.jade"
+                        src: "**/*.html"
+                    }
+                    {
+                        expand: true
+                        dot: true
+                        cwd: "<%= yeoman.app %>/styles"
+                        dest: "<%= yeoman.dist %>/public/styles"
+                        src: "bootstrap/*"
                     }
                     {
                         expand: true
@@ -409,7 +415,8 @@ module.exports = (grunt) ->
                         src: [
                             "package.json"
                             "server.js"
-                            "lib/**/*"
+                            "lib/**/*.js"
+                            "lib/**/*.txt"
                         ]
                     }
                 ]

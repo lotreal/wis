@@ -90,7 +90,6 @@ module.exports = (rid, io)->
             speak: (from, msg)->
                 messageStore.log(round, from, msg)
                 broadcast 'game:speak', messageStore.show(round)
-                console.log full: messageStore.fullpage(round)
                 return if messageStore.fullpage(round) then @VOTE else @PLAY
 
         VOTE:
