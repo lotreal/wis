@@ -14,7 +14,7 @@ MessageStore = require('./store').MessageStore
 module.exports = (rid, io)->
     updatePlayer = (players)->
         list = (sn.cnNum(i+1) + '、' + p.profile.slogan for p,i in players)
-        broadcast 'game:player:update', {players: list, teamname: room.team}
+        broadcast 'game:player:update', list
 
     team = context.one('team:'+rid, ()->new Team(rid))
     team.on 'update', updatePlayer
@@ -23,12 +23,6 @@ module.exports = (rid, io)->
 
     id_team_spy   = "#{rid}:spy"
     id_team_civil = "#{rid}:civil"
-
-
-    room =
-        team: sn.cnTeamname()
-
-
 
     logger = new MessageStore(team)
 

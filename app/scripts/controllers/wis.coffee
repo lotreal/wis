@@ -34,17 +34,19 @@ angular.module('WisApp').controller 'WisCtrl', [
                 socket.emit 'game:speak', $scope.input
                 $scope.input = ''
 
-        socket.on 'game:player:update', (data) ->
-            console.log data
-            $scope.players = data.players
-            $scope.subtitle = sprintf(data.teamname, fmt(data.players.length))
+        socket.emit 'game:create', {}, (room)->
+            $scope.room = room
+
+        socket.on 'game:player:update', (list) ->
+            $scope.list = list
+            $scope.subtitle = sprintf($scope.room.team, fmt($scope.list.length))
 
         socket.on 'game:start:count', (data) ->
             $scope.subtitle = sprintf(data.message, data.count)
 
         socket.on 'game:deal', (game)->
             $scope.title = game.word
-            $scope.players = []
+            $scope.list = []
 
         socket.on 'game:play:begin', (round)->
             $scope.subtitle = sprintf('现代汉语词典（第 %d 版）', round)
@@ -57,7 +59,7 @@ angular.module('WisApp').controller 'WisCtrl', [
 
         socket.on 'game:speak', (msg)->
             console.log msg
-            $scope.players = msg
+            $scope.list = msg
 
         return
 ]
