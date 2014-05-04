@@ -2,7 +2,7 @@
 angular.module('WisApp').controller 'MainCtrl', [
     '$scope', '$http', '$location'
     ($scope, $http, $location) ->
-        $scope.username = '罗涛'
+        $scope.username = ''
 
         $scope.login = ->
             $http.post('/login', {name: $scope.username})
