@@ -9,9 +9,11 @@ module.exports = (->
             @detail = []
             @voted = 0
 
+        isVoted: (from)->
+            _.find(@detail, (d)->d[0] == from) != undefined
+
         vote: (from, to)->
-            # check repeat vote
-            unless _.find(@detail, (d)->d[0] == from)
+            unless @isVoted(from)
                 @voted++
                 get = @getted[to][1]
                 @getted[to] = [to, ++get]

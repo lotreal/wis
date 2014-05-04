@@ -36,8 +36,8 @@ module.exports = (io, socket) ->
         socket.on 'game:speak', _.wrap socket, (socket, msg)->
             game.speak(socket, msg)
 
-        socket.on 'game:vote', _.wrap socket, (socket, target)->
-            game.vote(socket, target)
+        socket.on 'game:vote', _.wrap socket, (socket, target, fn)->
+            game.vote(socket, target, fn)
 
         socket.on 'disconnect', ()->
             game.out(player)

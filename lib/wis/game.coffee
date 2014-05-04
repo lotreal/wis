@@ -102,8 +102,11 @@ module.exports = (rid, io)->
         VOTE:
             out: ->@READY
 
-            vote: (from, target)->
-                @logger.vote(@round, from, target)
+            vote: (from, target, fn)->
+                unless @logger.isVoted(from)
+                    fn("您已投票给 #{target+1} 号，等其他人投票后显示投票结果。")
+                    @logger.vote(@round, from, target)
+
                 if @logger.completeVote()
                     console.log round: @round
                     voteResult = @logger.getVoteResult(@team, @round)
@@ -112,7 +115,7 @@ module.exports = (rid, io)->
                     console.log getGameResult: gameResult
                     if gameResult.gameover
                         @team.broadcast 'all', 'game:over', Fmt.list(gameResult.list)
-                        return @OVER
+                        return @READY
 
                     self = @
                     done = ->self.setMachineState(self.PLAY)

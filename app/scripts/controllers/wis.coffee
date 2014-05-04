@@ -29,8 +29,8 @@ angular.module('WisApp').controller 'WisCtrl', [
             socket.emit 'game:start', {}
 
         $scope.vote = (idx)->
-            $scope.subtitle = '您已投票给 ' + (idx+1) + ' 号，等其他人投票后显示投票结果。'
-            socket.emit 'game:vote', idx
+            socket.emit 'game:vote', idx, (res)->
+                $scope.subtitle = res
 
         $scope.keyPress = (evt)->
             if evt.keyCode == 13
