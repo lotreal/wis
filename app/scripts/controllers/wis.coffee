@@ -12,10 +12,13 @@ angular.module('WisApp').controller 'WisCtrl', [
             a = ['一','双','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','廿','廿一','廿二','廿三','廿四']
             a[n-1]
 
+
         $scope.fmt = fmt
-        $scope.subtitle = '现代汉语词典（第6版）'
-        $scope.title = "<-点击开始"
         $scope.print = ->console.log 'print'
+
+        init = (room)->
+            $scope.room = room
+            $scope.subtitle = room.name
 
         $scope.debug = ->
             console.log 'debug'
@@ -35,11 +38,11 @@ angular.module('WisApp').controller 'WisCtrl', [
                 $scope.input = ''
 
         socket.emit 'game:create', {}, (room)->
-            $scope.room = room
+            init(room)
 
         socket.on 'game:player:update', (list) ->
             $scope.list = list
-            $scope.subtitle = sprintf($scope.room.team, fmt($scope.list.length))
+            $scope.title = sprintf($scope.room.team, fmt($scope.list.length))
 
         socket.on 'game:start:count', (data) ->
             $scope.subtitle = sprintf(data.message, data.count)
@@ -55,7 +58,6 @@ angular.module('WisApp').controller 'WisCtrl', [
             $scope.subtitle = '请点选投票'
 
         socket.on 'game:vote:result', (vote)->
-            $scope.subtitle = '投票结果'
             $scope.list = vote
 
         socket.on 'game:speak', (msg)->

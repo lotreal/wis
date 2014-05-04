@@ -8,7 +8,11 @@ Fmt = require('./wis/sn')
 
 module.exports = (io, socket) ->
     roomId = socket.handshake.query.rid
-    room = Context.one "room:#{roomId}", ->team: Fmt.teamname()
+    room = Context.one "room:#{roomId}", ->
+        return {
+            name: '现代汉语词典'
+            team: Fmt.teamname()
+        }
 
     socket.on 'game:create', (opt, fn)->
         fn(room)

@@ -1,4 +1,5 @@
 'use strict'
+config = require('../config/config')
 context = require('../context')
 Model = require('../model')
 User = Model.user
@@ -15,7 +16,7 @@ postal = require('postal')
 module.exports = (rid, io)->
     countdown = (team, evt, count, message, done)->
         fn = ->
-            team.broadcast evt, {count: count--, message: message}
+            team.broadcast 'all', evt, {count: count--, message: message}
 
             if (count > 0)
                 setTimeout(fn, 1000)
@@ -25,7 +26,7 @@ module.exports = (rid, io)->
 
     updatePlayer = (team)->
         list = (p.profile.slogan for p in team.member())
-        team.broadcast 'game:player:update', Fmt.list(list)
+        team.broadcast 'all', 'game:player:update', Fmt.list(list)
 
     # TODO move to utils
     sliceRnd = (collection, n)->
@@ -36,15 +37,13 @@ module.exports = (rid, io)->
     startGame = (team, game)->
         done = ->
             team.beforePlay()
-
-            words = word()
-
-            team.send 'civil', 'game:deal', word: words[0]
-            team.send 'spy', 'game:deal', word: words[1]
+            words = if config.env == 'development' then ['CIVIL','SPY'] else word()
+            team.broadcast 'civil', 'game:deal', word: words[0]
+            team.broadcast 'spy', 'game:deal', word: words[1]
 
             game.setMachineState(game.PLAY)
 
-        countdown(team, 'game:start:count', 2, '服务器正在出题(%d)', done)
+        countdown(team, 'game:start:count', 2, '尚书大人正在出题(%d)', done)
 
 
     game = Stately.machine({
@@ -59,7 +58,7 @@ module.exports = (rid, io)->
                 )
                 @logger = new Logger(@team)
 
-                @round = 1
+                @round = 0
                 @READY
 
             debug: ->
@@ -83,18 +82,18 @@ module.exports = (rid, io)->
 
         PLAY:
             init: ->
-                @team.broadcast 'game:play:begin', @round++
+                @team.broadcast 'all', 'game:play:begin', ++@round
                 @PLAY
 
             out: ->@READY
 
             speak: (from, msg)->
                 @logger.log(@round, from, msg)
-                @team.broadcast 'game:speak', Fmt.list(@logger.show(@round))
+                @team.broadcast 'all', 'game:speak', Fmt.list(@logger.show(@round))
 
                 # if all player speaked
                 if @logger.fullpage(@round)
-                    @team.broadcast 'game:vote:begin'
+                    @team.broadcast 'all', 'game:vote:begin'
                     @logger.prepareVote()
                     return @VOTE
                 else
@@ -106,51 +105,18 @@ module.exports = (rid, io)->
             vote: (from, target)->
                 @logger.vote(@round, from, target)
                 if @logger.completeVote()
-                    players = @team.member()
-                    messages = @logger.show(@round)
-                    result = @logger.currentVote.result()
-
-                    icon = '<span class="glyphicon glyphicon-hand-left"></span>'
-                    icon = ''
-                    list = []
-                    for m, i in messages
-                        V = result[i]
-                        # voteme = (icon+Fmt.N(v) for v in V.voted).join(' ')
-                        voteme = ''
-                        line = "#{m} <- 共 #{V.getted} 票: (#{voteme}) "
-                        if V.hit
-                            line = line + '【最高票】'
-                            players[i].state = 'OUT'
-                            @team.remove(players[i])
-                        list.push(line)
-                    #console.log players
-                    @team.broadcast 'game:vote:result', Fmt.list(list)
-
-                    win = (team)->
-                        leftSpy = (_.filter team.member(), (p)->p.role=='SPY')
-                        return 'CIVIL' if leftSpy == 0
-                        return 'SPY' if team.length() <=3
-                        return false
-
-                    gameover = (team, win)->
-                        print = (p)->
-                            line = p.profile.slogan
-                            line += p.role
-                            line += (if p.role == win then '【赢】' else '【输】')
-                            return line
-                        list = (print(p) for p in team.member())
-                        team.broadcast 'game:over', Fmt.list(list)
-
-                    whowin = win(@team)
-                    if whowin
-                        gameover(@team, whowin)
+                    console.log round: @round
+                    voteResult = @logger.getVoteResult(@team, @round)
+                    @team.broadcast 'all', 'game:vote:result', Fmt.list(voteResult.list)
+                    gameResult = @team.getGameResult()
+                    console.log getGameResult: gameResult
+                    if gameResult.gameover
+                        @team.broadcast 'all', 'game:over', Fmt.list(gameResult.list)
                         return @OVER
 
                     self = @
-                    done = ->
-                        self.setMachineState(self.PLAY)
-
-                    countdown(@team, 'game:start:count', 9, '投票结果(%d)', done)
+                    done = ->self.setMachineState(self.PLAY)
+                    countdown(@team, 'game:start:count', 9, voteResult.title, done)
 
                     return @VOTE
                 else
