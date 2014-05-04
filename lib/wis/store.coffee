@@ -41,7 +41,7 @@ module.exports = (->
                     result = ''
                 return result
 
-            messages = (d(player, i) for player, i in @team.members())
+            messages = (d(player, i) for player, i in @team.member())
             @full["page-#{page}"] = myturn
             return messages
 

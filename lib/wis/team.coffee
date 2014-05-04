@@ -1,25 +1,34 @@
 'use strict'
 
 _ = require('lodash')
-events = require('events')
+Util = require('../util')
+postal = require('postal')
 
+# viewer, player, spy, civil, blank
 module.exports = (->
-    class Team extends events.EventEmitter
+    class Team
         constructor: (@id, @io) ->
             @players = []
 
-        remove: (player)->
-            _.remove(@players, (p)->p.id == player.id)
-            player.getSocket().leave(@id)
-            console.log out: "#{player.id}<<<#{@id}>>>#{player.socketID}"
-            @emit 'update', @
+        emitMemberChange: ->
+            postal.publish(
+                channel : "game"
+                topic   : "member.change",
+                data    : @
+            )
 
         add: (player)->
             _.remove(@players, (p)->p.id == player.id) if @players
             @players.push(player)
             player.getSocket().join(@id)
             console.log in: "#{player.id}<<<#{@id}>>>#{player.socketID}"
-            @emit 'update', @
+            @emitMemberChange()
+
+        remove: (player)->
+            _.remove(@players, (p)->p.id == player.id)
+            player.getSocket().leave(@id)
+            console.log out: "#{player.id}<<<#{@id}>>>#{player.socketID}"
+            @emitMemberChange()
 
         batchAdd: (players)->
             @add(p) for p in players
@@ -27,7 +36,7 @@ module.exports = (->
         index: (where)->
             _.findIndex(@players, where)
 
-        members: ()->@players
+        member: ()->@players
 
         length: ()->@players.length
 

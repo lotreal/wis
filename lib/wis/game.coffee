@@ -10,6 +10,7 @@ Fmt = require('./sn')
 Stately = require('stately.js')
 word = require('./word')
 Logger = require('./store')
+postal = require('postal')
 
 module.exports = (rid, io)->
     countdown = (team, evt, count, message, done)->
@@ -23,7 +24,7 @@ module.exports = (rid, io)->
         return fn()
 
     updatePlayer = (team)->
-        list = (p.profile.slogan for p in team.members())
+        list = (p.profile.slogan for p in team.member())
         team.broadcast 'game:player:update', Fmt.list(list)
 
     # TODO move to utils
@@ -34,7 +35,7 @@ module.exports = (rid, io)->
 
     startGame = (team, game)->
         done = ->
-            players = game.team.members()
+            players = game.team.member()
             [spy, civil] = sliceRnd([0..team.length()], 1)
 
             civilTeam = new Team(game.rid+'-civil', io)
@@ -70,7 +71,12 @@ module.exports = (rid, io)->
         READY:
             init: ->
                 @team = context.one('team:'+rid, ()->new Team(rid, io))
-                @team.on 'update', updatePlayer
+                postal.subscribe(
+                    channel  : 'game'
+                    topic    : "member.change"
+                    callback : (team, envelope)->
+                        updatePlayer(team)
+                )
                 @logger = new Logger(@team)
 
                 @round = 1
@@ -120,7 +126,7 @@ module.exports = (rid, io)->
             vote: (from, target)->
                 @logger.vote(@round, from, target)
                 if @logger.completeVote()
-                    players = @team.members()
+                    players = @team.member()
                     messages = @logger.show(@round)
                     result = @logger.currentVote.result()
 
@@ -140,7 +146,7 @@ module.exports = (rid, io)->
                     @team.broadcast 'game:vote:result', Fmt.list(list)
 
                     win = (team)->
-                        leftSpy = (_.filter team.members(), (p)->p.role=='SPY')
+                        leftSpy = (_.filter team.member(), (p)->p.role=='SPY')
                         return 'CIVIL' if leftSpy == 0
                         return 'SPY' if team.length() <=3
                         return false
@@ -151,7 +157,7 @@ module.exports = (rid, io)->
                             line += p.role
                             line += (if p.role == win then '【赢】' else '【输】')
                             return line
-                        list = (print(p) for p in team.members())
+                        list = (print(p) for p in team.member())
                         team.broadcast 'game:over', Fmt.list(list)
 
                     whowin = win(@team)
