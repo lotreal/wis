@@ -35,32 +35,12 @@ module.exports = (rid, io)->
 
     startGame = (team, game)->
         done = ->
-            players = game.team.member()
-            [spy, civil] = sliceRnd([0..team.length()], 1)
-
-            civilTeam = new Team(game.rid+'-civil', io)
-            spyTeam   = new Team(game.rid+'-spy',   io)
-            civilTeam.batchAdd(_.filter(players, (p, i)->
-                if _.contains(civil, i)
-                    p.role = 'CIVIL'
-                    return true
-                else
-                    return false
-            ))
-            spyTeam.batchAdd(_.filter(players, (p, i)->
-                if _.contains(spy, i)
-                    p.role = 'SPY'
-                    return true
-                else
-                    return false
-            ))
+            team.beforePlay()
 
             words = word()
-            civilTeam.broadcast 'game:deal', word: words[0]
-            spyTeam.broadcast 'game:deal', word: words[1]
 
-            game.civil = civilTeam
-            game.spy   = spyTeam
+            team.send 'civil', 'game:deal', word: words[0]
+            team.send 'spy', 'game:deal', word: words[1]
 
             game.setMachineState(game.PLAY)
 
@@ -135,7 +115,8 @@ module.exports = (rid, io)->
                     list = []
                     for m, i in messages
                         V = result[i]
-                        voteme = (icon+Fmt.N(v) for v in V.voted).join(' ')
+                        # voteme = (icon+Fmt.N(v) for v in V.voted).join(' ')
+                        voteme = ''
                         line = "#{m} <- 共 #{V.getted} 票: (#{voteme}) "
                         if V.hit
                             line = line + '【最高票】'
@@ -163,7 +144,7 @@ module.exports = (rid, io)->
                     whowin = win(@team)
                     if whowin
                         gameover(@team, whowin)
-                        @OVER
+                        return @OVER
 
                     self = @
                     done = ->

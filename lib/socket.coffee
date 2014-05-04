@@ -3,7 +3,7 @@ _ = require('lodash')
 Context = require('./context')
 
 Player = require('./wis/player')
-Game = require('./wis/game')
+gameFsm = require('./wis/game')
 Fmt = require('./wis/sn')
 
 module.exports = (io, socket) ->
@@ -18,7 +18,7 @@ module.exports = (io, socket) ->
         sid = socket.handshake.sessionID
         uid = socket.handshake.uid
 
-        game = Context.one "game:#{roomId}", ()->Game(roomId, io)
+        game = Context.one "game:#{roomId}", ()->gameFsm(roomId, io)
 
         player = new Player(uid: uid, socketID: socket.id, io: io)
         player.fillout().then(->game.in(player))
@@ -39,3 +39,5 @@ module.exports = (io, socket) ->
             game.out(player)
 
         return
+
+    return

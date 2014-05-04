@@ -1,14 +1,52 @@
 'use strict'
 
 _ = require('lodash')
-Util = require('../util')
+util = require('../util')
 postal = require('postal')
 
-# viewer, player, spy, civil, blank
+# viewer, player, spy, civil, blank, leave
 module.exports = (->
     class Team
         constructor: (@id, @io) ->
-            @players = []
+            @group = {}
+            @users = []
+
+        member: ->@users
+        length: ->@users.length
+        index: (where)->_.findIndex(@users, where)
+
+        beforePlay: ->
+            sliced = util.sliceRnd(@users, 1)
+            @group.spy = sliced[0]
+            @group.civil = sliced[1]
+            @group.player = _.clone @users
+            @group.leaver = []
+            return
+
+        send: (target, event, data)->
+            target = @group[target]
+            p.getSocket().emit(event, data) for p in target
+            return
+
+        broadcast: (event, data)->
+            @io.sockets.in(@id).emit event, data
+
+
+        add: (player)->
+            _.remove(@users, (p)->p.id == player.id) if @users
+            @users.push(player)
+            player.getSocket().join(@id)
+            console.log in: "#{player.id}<<<#{@id}>>>#{player.socketID}"
+            @emitMemberChange()
+
+        remove: (player)->
+            _.remove(@users, (p)->p.id == player.id)
+            player.getSocket().leave(@id)
+            console.log out: "#{player.id}<<<#{@id}>>>#{player.socketID}"
+            @emitMemberChange()
+
+        batchAdd: (users)->
+            @add(p) for p in users
 
         emitMemberChange: ->
             postal.publish(
@@ -16,32 +54,6 @@ module.exports = (->
                 topic   : "member.change",
                 data    : @
             )
-
-        add: (player)->
-            _.remove(@players, (p)->p.id == player.id) if @players
-            @players.push(player)
-            player.getSocket().join(@id)
-            console.log in: "#{player.id}<<<#{@id}>>>#{player.socketID}"
-            @emitMemberChange()
-
-        remove: (player)->
-            _.remove(@players, (p)->p.id == player.id)
-            player.getSocket().leave(@id)
-            console.log out: "#{player.id}<<<#{@id}>>>#{player.socketID}"
-            @emitMemberChange()
-
-        batchAdd: (players)->
-            @add(p) for p in players
-
-        index: (where)->
-            _.findIndex(@players, where)
-
-        member: ()->@players
-
-        length: ()->@players.length
-
-        broadcast: (event, data)->
-            @io.sockets.in(@id).emit event, data
 
     return Team
 )()

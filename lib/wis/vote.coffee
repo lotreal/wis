@@ -42,12 +42,13 @@ module.exports = (->
             hit = @end()
             hit = hit.hit
 
-            R = (i, detail)->
-                r =
+            fillout = (i, detail)->
+                return {
                     getted: i[1]
                     hit: i[0]==hit
                     voted: v[0] for v in _.filter(detail, (d)->d[1]==i[0])
-            R(i, @detail) for i in @getted
+                }
+            fillout(i, @detail) for i in @getted
 
     return Vote
 )()

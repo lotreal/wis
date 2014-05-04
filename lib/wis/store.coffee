@@ -18,6 +18,7 @@ module.exports = (->
 
         prepareVote: ->
             @currentVote = new Vote(@team.length())
+            return
 
         vote: (round, from, target)->
             @currentVote.vote(@team.index(socketID: from.id), target)
