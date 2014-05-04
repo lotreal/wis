@@ -1,5 +1,6 @@
 'use strict'
 
+_ = require('lodash')
 Fmt = require('./sn')
 Vote = require('./vote')
 
@@ -30,7 +31,7 @@ class Store
         return @currentVote.end().end
 
     getVoteResult: (team, round)->
-        players = team.player()
+        players = team.getPlayer()
         messages = @show(round)
         result = @currentVote.result()
 
@@ -63,6 +64,37 @@ class Store
             list: list
         }
 
+    getGameResult: (team, game)->
+        spy = _.clone team.getSpy()
+        hit = team.getHit()
+        _.pull(spy, h) for h in hit
+
+        winner = ''
+        if spy.length == 0
+            winner = 'civil'
+        else
+            if (team.getPlayer().length - hit.length <=3 )
+                winner = 'spy'
+
+        gameover = winner != ''
+        list = []
+        if gameover
+            self = team
+            console.log word:game.word
+            print = (p)->
+                role = self.getRole(p)
+                line = p.profile.slogan
+                line += '【考题】' + game.word[role]
+                line += (if role == winner then '【高中】' else '')
+                return line
+            list = (print(p) for p in self.getPlayer())
+
+        return {
+            winner: winner
+            gameover: winner != ''
+            list: list
+        }
+
     show: (page, i)->
         logs = @logs["page-#{page}"]
         myturn = true
@@ -79,7 +111,7 @@ class Store
                 result = ''
             return result
 
-        messages = (d(player, i) for player, i in @team.member())
+        messages = (d(player, i) for player, i in @team.getMember())
         @full["page-#{page}"] = myturn
         return messages
 

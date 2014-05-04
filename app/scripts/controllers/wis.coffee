@@ -51,7 +51,7 @@ angular.module('WisApp').controller 'WisCtrl', [
             $scope.title = game.word
 
         socket.on 'game:play:begin', (round)->
-            $scope.subtitle = sprintf('现代汉语词典（第 %d 版）', round)
+            $scope.subtitle = sprintf('康熙字典（第 %d 版）', round)
             $scope.list = []
 
         socket.on 'game:vote:begin', ->
@@ -66,6 +66,6 @@ angular.module('WisApp').controller 'WisCtrl', [
 
         socket.on 'game:over', (data)->
             $scope.list = data
-
+            $scope.subtitle = '考试结果'
         return
 ]

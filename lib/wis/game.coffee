@@ -24,23 +24,13 @@ module.exports = (rid, io)->
                 setTimeout(done, 1000)
         return fn()
 
-    updatePlayer = (team)->
-        list = (p.profile.slogan for p in team.member())
-        team.broadcast 'all', 'game:player:update', Fmt.list(list)
-
-    # TODO move to utils
-    sliceRnd = (collection, n)->
-        head = _.sample(collection, n)
-        tail = _.filter(collection, (i)->!_.contains(head, i))
-        return [head, tail]
-
     startGame = (team, game)->
         done = ->
             team.beforePlay()
             words = if config.env == 'development' then ['CIVIL','SPY'] else word()
             team.broadcast 'civil', 'game:deal', word: words[0]
             team.broadcast 'spy', 'game:deal', word: words[1]
-
+            game.word = civil:words[0], spy:words[1]
             game.setMachineState(game.PLAY)
 
         countdown(team, 'game:start:count', 2, '尚书大人正在出题(%d)', done)
@@ -50,6 +40,10 @@ module.exports = (rid, io)->
         READY:
             init: ->
                 @team = context.one('team:'+rid, ()->new Team(rid, io))
+                updatePlayer = (team)->
+                    list = (p.profile.slogan for p in team.getMember())
+                    team.broadcast 'all', 'game:player:update', Fmt.list(list)
+
                 postal.subscribe(
                     channel  : 'game'
                     topic    : "member.change"
@@ -111,7 +105,7 @@ module.exports = (rid, io)->
                     console.log round: @round
                     voteResult = @logger.getVoteResult(@team, @round)
                     @team.broadcast 'all', 'game:vote:result', Fmt.list(voteResult.list)
-                    gameResult = @team.getGameResult()
+                    gameResult = @logger.getGameResult(@team, @)
                     console.log getGameResult: gameResult
                     if gameResult.gameover
                         @team.broadcast 'all', 'game:over', Fmt.list(gameResult.list)

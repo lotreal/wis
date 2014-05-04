@@ -10,7 +10,7 @@ module.exports = (io, socket) ->
     roomId = socket.handshake.query.rid
     room = Context.one "room:#{roomId}", ->
         return {
-            name: '现代汉语词典'
+            name: '康熙字典'
             team: Fmt.teamname()
         }
 
