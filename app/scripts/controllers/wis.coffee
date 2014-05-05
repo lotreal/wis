@@ -1,7 +1,8 @@
 'use strict'
 angular.module('WisApp').controller 'WisCtrl', [
-    '$scope', 'socketFactory', '$routeParams'
-    ($scope, socketFactory, $routeParams) ->
+    '$scope', 'socketFactory', '$routeParams', 'localize'
+    ($scope, socketFactory, $routeParams, localize) ->
+        console.log localize.getLocalizedString('wis')
         socket = socketFactory({
             ioSocket: io.connect('', query: "rid=1ntlvb7r&token=t")
         })
@@ -19,6 +20,7 @@ angular.module('WisApp').controller 'WisCtrl', [
         init = (room)->
             $scope.room = room
             $scope.subtitle = room.name
+            console.log localize.getLocalizedString('wis')
 
         $scope.debug = ->
             console.log 'debug'
@@ -67,5 +69,7 @@ angular.module('WisApp').controller 'WisCtrl', [
         socket.on 'game:over', (data)->
             $scope.list = data
             $scope.subtitle = '考试结果'
+
+        console.log localize.getLocalizedString('wis')
         return
 ]

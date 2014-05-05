@@ -21,7 +21,7 @@ angular.module('app.localization', [])
     '$http', '$rootScope', '$window'
     ($http, $rootScope, $window) ->
         localize =
-            language: ''                    # use the $window service to get the language of the user's browser
+            language: 'zh'                    # use the $window service to get the language of the user's browser
             url: undefined                  # location of the resource file
             resourceFileLoaded: false       # flag to indicate if the service has loaded the resource file
 
@@ -70,7 +70,7 @@ angular.module('app.localization', [])
                 return result
 
         # localize on init, for auto l18n and l10n
-        # localize.initLocalizedResources()
+        localize.initLocalizedResources()
 
         return localize
 ])
@@ -113,7 +113,7 @@ angular.module('app.localization', [])
 .controller('LangCtrl', [
     '$scope', 'localize'
     ($scope, localize) ->
-        $scope.lang = 'English'
+        $scope.lang = '中文'
 
         $scope.setLang = (lang) ->
             switch lang
