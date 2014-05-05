@@ -387,6 +387,7 @@ module.exports = (grunt) ->
                             "bower_components/**/*"
                             "images/{,*/}*.{webp}"
                             "fonts/**/*"
+                            'i18n/**/*'
                         ]
                     }
                     {
