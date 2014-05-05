@@ -67,6 +67,10 @@ module.exports = (rid, io)->
                 @team.remove player
                 @READY
 
+            speak: (from, msg)->
+                i = @team.index(socketID: from.id)
+                @team.broadcast 'all', 'game:chat', {index:i,message:msg}
+
             go: ->
                 startGame(@team, @)
                 @INIT

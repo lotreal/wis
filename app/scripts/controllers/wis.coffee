@@ -13,6 +13,9 @@ angular.module('WisApp').controller 'WisCtrl', [
             a = ['一','双','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','廿','廿一','廿二','廿三','廿四']
             a[n-1]
 
+        # $scope.chats = []
+        # TODO fix this
+        $scope.chats = [0..99]
 
         $scope.fmt = fmt
         $scope.print = ->console.log 'print'
@@ -38,6 +41,12 @@ angular.module('WisApp').controller 'WisCtrl', [
             if evt.keyCode == 13
                 socket.emit 'game:speak', $scope.input
                 $scope.input = ''
+
+        socket.on 'game:chat', (chat)->
+            index = chat.index
+            $scope.chats[index] = chat.message
+            el = angular.element(document.getElementById('balloon-'+index))
+            el.triggerHandler('toggle')
 
         socket.emit 'game:create', {}, (room)->
             init(room)
