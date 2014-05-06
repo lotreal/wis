@@ -53,7 +53,7 @@ module.exports = (rid, io)->
 
                 update: ->
                     list = (p.profile.slogan for p in @team.getMember())
-                    @team.broadcast 'all', 'game:player:update', list
+                    @team.broadcast 'all', 'game:player:update', Fmt.list(list)
 
                 in: (player)->
                     @team.add player

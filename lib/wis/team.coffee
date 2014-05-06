@@ -13,6 +13,7 @@ module.exports = (->
 
         getMember: ->@users
         getPlayer: ->@group.player
+        getLeft:   ->@group.left
         getCivil:  ->@group.civil
         getSpy:    ->@group.spy
         getHit:    ->@group.hit
@@ -38,8 +39,7 @@ module.exports = (->
             return
 
         hit: (player)->
-            # _.pull(@group.player, player)
-            console.log hithit: player
+            _.pull(@group.left, player)
             @group.hit.push(player)
 
         getRole: (player)->

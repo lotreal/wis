@@ -18,7 +18,7 @@ class Store
         return
 
     prepareVote: ->
-        @currentVote = new Vote(@team.length())
+        @currentVote = new Vote(@team.getPlayer().length)
         return
 
     isVoted: (from)->
