@@ -1,19 +1,20 @@
 'use strict'
+
 _ = require('lodash')
-Context = require('./context')
-
-Player = require('./wis/player')
-
-Fmt = require('./wis/sn')
 postal = require('postal')
 
+Context = require('./context')
+Player = require('./wis/player')
+Fmt = require('./wis/sn')
+
 module.exports = (io, socket) ->
-    roomId = socket.handshake.query.rid
-    room = Context.one "room:#{roomId}", ->
-        return {
-            name: '康熙字典'
-            team: Fmt.teamname()
-        }
+    conn = require('./wis/connection').connect(socket)
+
+    roomId = conn.roomId
+
+    room =
+        name: '康熙字典'
+        team: Fmt.teamname()
 
     FSM = Context.one "gamefsm:#{roomId}", ()->
         require('./wis/gamefsm')(roomId, io)
