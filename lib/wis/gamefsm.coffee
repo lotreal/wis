@@ -83,8 +83,8 @@ module.exports = (rid, io)->
                 _onEnter: ->
                     @team.broadcast 'all', 'game:play:begin', ++@round
 
-                speak: (from, msg)->
-                    @logger.log(@round, from, msg)
+                speak: (data)->
+                    @logger.log(@round, data.from, data.message)
                     @team.broadcast 'all', 'game:speak', Fmt.list(@logger.show(@round))
 
                     # if all player speaked
@@ -94,7 +94,28 @@ module.exports = (rid, io)->
                         @.transition('vote')
 
             vote:
-                vote: ->
+                vote: (data)->
+                    from = data.from
+                    target = data.target
+                    fn = data.callback
+
+                    unless @logger.isVoted(from)
+                        fn("您已投票给 #{target+1} 号，等其他人投票后显示投票结果。")
+                        @logger.vote(@round, from, target)
+
+                    if @logger.completeVote()
+                        console.log round: @round
+                        voteResult = @logger.getVoteResult(@team, @round)
+                        @team.broadcast 'all', 'game:vote:result', Fmt.list(voteResult.list)
+                        gameResult = @logger.getGameResult(@team, @)
+                        console.log getGameResult: gameResult
+                        if gameResult.gameover
+                            @team.broadcast 'all', 'game:over', Fmt.list(gameResult.list)
+                            @.transition('ready')
+
+                        self = @
+                        done = ->self.setMachineState(self.PLAY)
+                        countdown(@team, 'game:start:count', 9, voteResult.title, done)
 
     )
 
