@@ -1,0 +1,39 @@
+.page-wis {
+  .wis-container {
+    max-width: 720px;
+    margin: 10px auto;
+    font-size: 125%;
+  }
+
+  .btn-personal {
+    float: right;
+  }
+
+  .glyphicon-blank {
+    width: 18px;
+  }
+  .list-wis {
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .icon {
+        margin-right: 10px;
+      }
+
+      label { width: 100px; }
+
+      .green {
+        color: green;
+      }
+
+      .me {
+        text-decoration:underline;
+      }
+    }
+  }
+}

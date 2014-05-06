@@ -1,0 +1,143 @@
+<div class="page-wis">
+
+  <div class="row">
+    <div class="wis-container">
+
+      <div class="btn-group btn-personal" dropdown is-open="status.isopen">
+        <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+          选项
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="#">个人档案</a></li>
+          <li><a href="#">房间设置</a></li>
+          <li class="divider"></li>
+          <li><a href="#">退出</a></li>
+        </ul>
+      </div>
+
+      <h1>汉典</h1>
+
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="wis-container">
+
+      <div class="panel panel-default">
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon" ng-click="startGame()">
+            <span class="glyphicon glyphicon-book"></span>
+          </span>
+          <input type="text"
+                 id="wis-input"
+                 class="form-control"
+                 placeholder="{{title}}"
+                 ng-keydown="keyPress($event);"
+                 ng-model="input"
+                 >
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="row" collapse="!isCollapsed">
+    <div class="wis-container">
+
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          <strong>
+            <span class="glyphicon glyphicon-home" ng-click="debug()"></span>
+            {{subtitle}}
+          </strong>
+        </div>
+
+        <ul class="list-unstyled list-wis">
+          <li class="list-group-item" ng-repeat="data in players"
+              x-ng-class="{'bg-info': data.ready}"
+
+              ng-click="vote($index)"
+              >
+            <span x-ng-if="data.flag == 'master'"
+                  title="房主"
+                  class="icon glyphicon glyphicon-flag"></span>
+            <span x-ng-if="data.flag != 'master'"
+                  class="icon glyphicon glyphicon-blank"></span>
+
+            <span id="balloon-{{$index}}"
+                  x-ng-class="{me: data.uid == uid}"
+                  popover-placement="right"
+                  popover="{{chats[$index]}}"
+                  popover-trigger="focus"
+                  >
+              <strong>
+                {{data.name}}
+              </strong>
+            </span>
+          </li>
+
+          <li>
+            <section class="row text-center">
+              <button class="btn btn-w-md btn-gap-v btn-line-primary" ng-click="start()">
+                {{realStart}}
+              </button>
+            </section>
+          </li>
+        </ul>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row" collapse="isCollapsed">
+    <div class="wis-container">
+
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          <strong>
+            <span class="glyphicon glyphicon-home" ng-click="debug()"></span>
+            {{subtitle}}
+          </strong>
+        </div>
+
+        <ul class="list-unstyled list-info">
+          <li class="list-group-item" ng-repeat="data in speak"
+              ng-click="vote($index)"
+              >
+            <span x-ng-if="data.flag == 'turn'"
+                  title="请发言"
+                  class="icon glyphicon glyphicon-eye-open"></span>
+            <span x-ng-if="data.flag == ''"
+                  class="icon glyphicon glyphicon-blank"></span>
+
+            <span id="balloon-{{$index}}"
+                  popover-placement="right"
+                  popover="{{chats[$index]}}"
+                  popover-trigger="focus"
+                  >
+              {{data.name}}
+            </span>
+          </li>
+
+          <li>
+            <section class="row text-center">
+              <button class="btn btn-w-md btn-gap-v btn-line-primary" ng-click="start()">
+                开始
+              </button>
+            </section>
+          </li>
+
+        </ul>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>

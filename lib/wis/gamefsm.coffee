@@ -51,19 +51,30 @@ module.exports = (rid, io)->
                     console.log 'enter ready'
 
                 update: ->
-                    list = (p.profile.slogan for p in @team.getMember())
-                    @team.broadcast 'all', 'game:player:update', Fmt.list(list)
+                    players = _.map @team.getMember(), (p, i)->
+                        return {
+                            uid: p.id
+                            flag: if i == 0 then 'master' else ''
+                            ready: false
+                            name: p.profile.name
+                            slogan: p.profile.slogan
+                        }
+                    @team.broadcast 'all', 'game:player:update', players
 
                 in: (player)->
                     @team.add player
                     @.handle('update')
 
                 out: (player)->
-                    @team.remove player
+                    @team.disconnect player
                     @.handle('update')
 
                 speak: (data)->
-                    i = @team.index(socketID: data.from.id)
+                    console.log "#{data.from.id}: #{data.message}"
+                    i = _.findIndex(@team.getMember(), socketID: data.from.id)
+                    player = @team.getMember()[i]
+                    player.message = data.message
+                    console.log player
                     @team.broadcast 'all', 'game:chat', {index:i,message:data.message}
 
                 go: ->
@@ -73,7 +84,7 @@ module.exports = (rid, io)->
                         @team.broadcast 'civil', 'game:deal', word: words[0]
                         @team.broadcast 'spy', 'game:deal', word: words[1]
                         @word = civil:words[0], spy:words[1]
-                        @.transition('play')
+                        @transition('play')
 
                     countdown(@team, 'game:start:count', 2,
                         '尚书大人正在出题(%d)', _.bind(done, @))

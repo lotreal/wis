@@ -1,4 +1,167 @@
+<div class="page-wis">
+
+  <div class="row">
+    <div class="wis-container">
+
+      <div class="btn-group btn-personal" dropdown is-open="status.isopen">
+        <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+          选项
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="#">个人档案</a></li>
+          <li><a href="#">房间设置</a></li>
+          <li class="divider"></li>
+          <li><a href="#">退出</a></li>
+        </ul>
+      </div>
+
+      <h1>汉典</h1>
+
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="wis-container">
+
+      <div class="panel panel-default">
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon" ng-click="startGame()">
+            <span class="glyphicon glyphicon-book"></span>
+          </span>
+          <input type="text"
+                 class="form-control"
+                 placeholder="{{title}}"
+                 ng-keydown="keyPress($event);"
+                 ng-model="input"
+                 >
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="row" collapse="!isCollapsed">
+    <div class="wis-container">
+
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          <strong>
+            <span class="glyphicon glyphicon-th" ng-click="debug()"></span>
+            {{subtitle}}
+          </strong>
+        </div>
+
+        <ul class="list-unstyled list-info">
+          <li class="list-group-item" ng-repeat="data in list"
+              ng-click="vote($index)"
+              >
+            <span x-ng-if="data.flag == 'master'"
+                  class="icon glyphicon glyphicon-flag"></span>
+            <span x-ng-if="data.flag == 'you'"
+                  class="icon glyphicon glyphicon-user"></span>
+            <span x-ng-if="data.flag == ''"
+                  class="icon glyphicon glyphicon-blank"></span>
+
+            <span id="balloon-{{$index}}"
+                  popover-placement="right"
+                  popover="{{chats[$index]}}"
+                  popover-trigger="focus"
+                  >
+              {{data.name}}
+            </span>
+          </li>
+
+          <li>
+            <section class="row text-center">
+              <button class="btn btn-w-md btn-gap-v btn-line-primary" ng-click="open()">
+                开始
+              </button>
+            </section>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="row" collapse="isCollapsed">
+    <div class="wis-container">
+
+      <div class="form-group">
+        <div class="col-sm-10">
+          <div class="input-group input-group-lg">
+            <span class="input-group-addon" ng-click="startGame()">
+              <span class="glyphicon glyphicon-book"></span>
+            </span>
+            <input type="text" class="form-control">
+            <span class="input-group-btn">
+              <button class="btn btn-default btn-lg" style="width:64px;">
+                <span class="icon glyphicon glyphicon-search"></span>
+              </button>
+            </span>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="row">
+    <div class="wis-container">
+      <div class="col-sm-4">
+        <section class="panel panel-box">
+          <div class="panel-top bg-success">
+            <i class="fa fa-shopping-cart text-large"></i>
+          </div>
+          <div class="panel-bottom bg-reverse">
+            <p class="size-h1">369</p>
+            <p class="text-muted">Sales</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-sm-4">
+        <section class="panel panel-box">
+          <div class="panel-top bg-danger">
+            <i class="fa fa-user text-large"></i>
+          </div>
+          <div class="panel-bottom bg-reverse">
+            <p class="size-h1">231</p>
+            <p class="text-muted">New Users</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-sm-4">
+        <section class="panel panel-box">
+          <div class="panel-top bg-info">
+            <i class="fa fa-user text-large"></i>
+          </div>
+          <div class="panel-bottom bg-reverse">
+            <p class="size-h1">231</p>
+            <p class="text-muted">New Users</p>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+
 <div class="container">
+
   <button id="ppp" popover-placement="right" popover-title="The title." popover="On the Right!" class="btn btn-info btn-gap ng-scope"
           popover-trigger="cus"
           >Popover on Right</button>
@@ -6,19 +169,6 @@
           >Popover on Right</button>
 
   <alert type="danger">alert.msg</alert>
-  <!-- Single button -->
-  <div class="btn-group" dropdown is-open="status.isopen">
-    <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
-      Button dropdown <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
-      <li><a href="#">Action</a></li>
-      <li><a href="#">Another action</a></li>
-      <li><a href="#">Something else here</a></li>
-      <li class="divider"></li>
-      <li><a href="#">Separated link</a></li>
-    </ul>
-  </div>
 
   <div ng-controller="ModalDemoCtrl">
     <script type="text/ng-template" id="myModalContent.html">
@@ -48,20 +198,8 @@
   <input type="text" value="Click me!" popover="I appeared on focus! Click away and I'll vanish..."  popover-trigger="focus" class="form-control">
   <button class="btn btn-sm btn-primary" type="button" ng-click="randomStacked()">Randomize</button>
 
-  <div class="form-group">
-    <div class="col-sm-10">
-      <div class="input-group input-group-lg">
-        <span class="input-group-addon" ng-click="startGame()">
-          <span class="glyphicon glyphicon-book"></span>
-        </span>
-        <input type="text" class="form-control">
-        <span class="input-group-btn">
-          <button class="btn btn-default btn-lg" style="width:64px;">
-            <span class="icon glyphicon glyphicon-search"></span>
-          </button>
-        </span>
-
-      </div>
+  <div class="row">
+    <div class="wis-container">
     </div>
   </div>
 </div>

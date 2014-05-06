@@ -3,23 +3,27 @@
 Promise = require('bluebird')
 User = require('../model').user
 
-module.exports = (->
-    class Player
-        constructor: (options) ->
-            @id = options.uid
-            @socketID = options.socketID
-            @io = options.io
-            @state = 'OK'
+class Player
+    constructor: (options) ->
+        @id = options.uid
+        @socketID = options.socketID
+        @io = options.io
+        @state = 'OK'
 
-        getSocket: ->
-            @io.sockets.sockets[@socketID]
+    getId: ->@id
 
-        fillout: ->
-            self = @
-            return new Promise (resolve, reject)->
-                User.id(self.id).then (user)->
-                    self.profile = user.profile
-                    resolve self
+    getSocket: ->
+        @io.sockets.sockets[@socketID]
 
-    return Player
-)()
+    setSocket: (socket)->
+        @socketID = socket.id
+        return socket
+
+    fillout: ->
+        self = @
+        return new Promise (resolve, reject)->
+            User.id(self.id).then (user)->
+                self.profile = user.profile
+                resolve self
+
+module.exports = Player

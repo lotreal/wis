@@ -19,13 +19,13 @@ app.config [
         $routeProvider.when('/',
             redirectTo: '/1ntlvb7r'
         ).when('/ui',
-            templateUrl: 'partials/ui'
+            templateUrl: 'partials/game'
             controller: 'MainCtrl'
         ).when('/signin',
             templateUrl: 'partials/signin'
             controller: 'MainCtrl'
         ).when('/:roomId',
-            templateUrl: 'partials/wis'
+            templateUrl: 'partials/game'
             controller: 'WisCtrl'
         ).otherwise redirectTo: '/'
         $locationProvider.html5Mode true

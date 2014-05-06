@@ -18,10 +18,11 @@ module.exports = (app) ->
         res.clearCookie('wis:uid')
         passport.login(req.body.name)
         .then(
-            (token)->
+            (token, uid)->
                 req.session.token = token
-                res.cookie('wis:uid', token)
-                res.json [null, token: token]
+                passport.verify token, (err, ok)->
+                    res.cookie('wis:uid', ok.uid)
+                    res.json [null, token: token]
 
             (err)->
                 req.session.token = null

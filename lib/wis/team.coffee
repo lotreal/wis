@@ -9,33 +9,34 @@ module.exports = (->
     class Team
         constructor: (@id, @io) ->
             @group = {}
-            @users = []
+            @disconnected = {}
+            @member = []
 
-        getMember: ->@users
+        getMember: ->@member
         getPlayer: ->@group.player
         getLeft:   ->@group.left
         getCivil:  ->@group.civil
         getSpy:    ->@group.spy
         getHit:    ->@group.hit
 
-        length: ->@users.length
-        index: (where)->_.findIndex(@users, where)
-
         beforePlay: ->
-            sliced = util.sliceRnd(@users, 1)
+            sliced = util.sliceRnd(@member, 1)
             @group.spy    = sliced[0]
             @group.civil  = sliced[1]
-            @group.player = _.clone @users
-            @group.left   = _.clone @users
+            @group.player = _.clone @member
+            @group.left   = _.clone @member
             @group.hit    = []
             @group.leaver = []
             return
 
         broadcast: (group, event, data)->
-            if group == 'all'
-                @io.sockets.in(@id).emit event, data
-            else
-                p.getSocket().emit(event, data) for p in @group[group]
+            target = if group == 'all' then @getMember() else @group[group]
+            for p in @getMember()
+                socket = p.getSocket()
+                if socket
+                    socket.emit(event, data)
+                else
+                    console.log noSocket: p
             return
 
         hit: (player)->
@@ -48,20 +49,39 @@ module.exports = (->
             return 'unknown'
 
         add: (player)->
-            _.remove(@users, (p)->p.id == player.id) if @users
-            @users.push(player)
-            player.getSocket().join(@id)
-            console.log in: "#{player.id}<<<#{@id}>>>#{player.socketID}"
-            @emitMemberChange()
+            uid = player.getId()
+            leave = @disconnected[uid]
+            if leave
+                clearTimeout(leave)
+                p = _.find(@getMember(), (p)->p.getId() == uid)
+                p.setSocket(player.getSocket())
+                console.log reflash: "#{uid}<<<#{@id}>>>#{p.socketID}"
+                delete @disconnected[uid]
+            else
+                _.remove(@member, (p)->p.id == player.id) if @member
+                @member.push(player)
+                console.log in: "#{player.id}<<<#{@id}>>>#{player.socketID}"
+                @emitMemberChange()
 
         remove: (player)->
-            _.remove(@users, (p)->p.id == player.id)
-            player.getSocket().leave(@id)
+            _.remove(@member, (p)->p.id == player.id)
             console.log out: "#{player.id}<<<#{@id}>>>#{player.socketID}"
             @emitMemberChange()
 
-        batchAdd: (users)->
-            @add(p) for p in users
+        disconnect: (player)->
+            uid = player.getId()
+
+            fn = ->
+                @remove(player)
+                delete @disconnected[uid]
+
+            # 如果 2 秒内重连，则只更换 socketId，不实际 remove
+            @disconnected[uid] = setTimeout(_.bind(fn, this), 2000)
+            return @disconnected[uid]
+
+
+        batchAdd: (member)->
+            @add(p) for p in member
 
         emitMemberChange: ->
             postal.publish(
