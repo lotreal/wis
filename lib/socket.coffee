@@ -7,7 +7,7 @@ Context = require('./context')
 Player = require('./wis/player')
 Fmt = require('./wis/sn')
 
-module.exports = (io, socket) ->
+module.exports = (socket) ->
     conn = require('./wis/connection').connect(socket)
 
     roomId = conn.roomId
@@ -17,21 +17,21 @@ module.exports = (io, socket) ->
         team: Fmt.teamname()
 
     FSM = Context.one "gamefsm:#{roomId}", ()->
-        require('./wis/gamefsm')(roomId, io)
+        require('./wis/gamefsm')(roomId)
 
     channel = postal.channel('wis')
 
     socket.on 'game:create', (opt, fn)->
         fn(room)
-        setupGame(roomId, io, socket)
+        setupGame(roomId, socket)
 
-    setupGame = (roomId, io, socket)->
+    setupGame = (roomId, socket)->
         sid = socket.handshake.sessionID
         uid = socket.handshake.uid
 
         channel.publish topic: 'initialized'
 
-        player = new Player(uid: uid, socketID: socket.id, io: io)
+        player = new Player(uid)
         player.fillout().then(->
             channel.publish topic:'in', data:player
         )

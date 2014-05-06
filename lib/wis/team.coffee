@@ -7,7 +7,7 @@ postal = require('postal')
 # viewer, player, spy, civil, blank, leave
 module.exports = (->
     class Team
-        constructor: (@id, @io) ->
+        constructor: (@id) ->
             @group = {}
             @disconnected = {}
             @member = []
@@ -32,11 +32,14 @@ module.exports = (->
         broadcast: (group, event, data)->
             target = if group == 'all' then @getMember() else @group[group]
             for p in @getMember()
-                socket = p.getSocket()
-                if socket
-                    socket.emit(event, data)
-                else
-                    console.log noSocket: p
+                postal.publish(
+                    channel : "wis"
+                    topic   : "socket.io.emit",
+                    data    :
+                        target: target
+                        event:  event
+                        data:   data
+                )
             return
 
         hit: (player)->
@@ -54,7 +57,6 @@ module.exports = (->
             if leave
                 clearTimeout(leave)
                 p = _.find(@getMember(), (p)->p.getId() == uid)
-                p.setSocket(player.getSocket())
                 console.log reflash: "#{uid}<<<#{@id}>>>#{p.socketID}"
                 delete @disconnected[uid]
             else

@@ -10,11 +10,11 @@ context = require('../context')
 Model = require('../model')
 User = Model.user
 Team = require('./team')
-io = context.get('io')
 Promise = require('bluebird')
 Fmt = require('./sn')
 word = require('./word')
 Logger = require('./store')
+conn = require('./connection')
 
 countdown = (team, evt, count, message, done)->
     fn = ->
@@ -36,7 +36,7 @@ module.exports = (rid, io)->
         states:
             uninitialized:
                 initialized: ->
-                    @team = context.one('team:'+rid, ()->new Team(rid, io))
+                    @team = context.one('team:'+rid, ()->new Team(rid))
 
                     console.log 'Initialized'
                     @transition 'ready'
@@ -71,10 +71,10 @@ module.exports = (rid, io)->
 
                 speak: (data)->
                     console.log "#{data.from.id}: #{data.message}"
-                    i = _.findIndex(@team.getMember(), socketID: data.from.id)
+                    i = _.findIndex(@team.getMember(), uid: conn.findUser(data.from.id))
                     player = @team.getMember()[i]
                     player.message = data.message
-                    console.log player
+
                     @team.broadcast 'all', 'game:chat', {index:i,message:data.message}
 
                 go: ->

@@ -22,5 +22,11 @@ connect = (socket)->
 exports.connect = connect
 exports.disconnect = disconnect
 
-exports.getUid = (socketId)->
+exports.findSockets = (uid)->
+    sockets = []
+    for k, v of db
+        sockets.push(k) if v == uid
+    return sockets
+
+exports.findUser = (socketId)->
     return db[socketId] || null
