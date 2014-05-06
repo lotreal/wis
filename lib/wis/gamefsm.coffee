@@ -36,11 +36,8 @@ module.exports = (rid, io)->
         states:
             uninitialized:
                 initialized: ->
-                    @round = 0
                     @team = context.one('team:'+rid, ()->new Team(rid, io))
-                    @logger = new Logger(@team)
 
-                    @emit 'Initialized', 1, 2, 3
                     console.log 'Initialized'
                     @transition 'ready'
 
@@ -49,6 +46,8 @@ module.exports = (rid, io)->
 
             ready:
                 _onEnter: ->
+                    @round = 0
+                    @logger = new Logger(@team)
                     console.log 'enter ready'
 
                 update: ->
@@ -112,9 +111,10 @@ module.exports = (rid, io)->
                         if gameResult.gameover
                             @team.broadcast 'all', 'game:over', Fmt.list(gameResult.list)
                             @.transition('ready')
+                            return
 
                         self = @
-                        done = ->self.setMachineState(self.PLAY)
+                        done = ->self.transition('play')
                         countdown(@team, 'game:start:count', 9, voteResult.title, done)
 
     )

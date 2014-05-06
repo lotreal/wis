@@ -1,16 +1,16 @@
-express + angular + socket.io + flatify
+express + angular + socket.io + flatify + fsm
 
-* 初始化
+* 基于
 
 yo angular-fullstack
 
-* 启动
+* 运行
 
+npm install
+bower install
 grunt server
 
-* 谁是卧底开发
-
-http://localhost:3000/wis
+open http://localhost:3000/
 
 * 谁是卧底游戏规则
 1. 每次需要N个人，其中M个围观者，L个游戏着，注：N>M>L
