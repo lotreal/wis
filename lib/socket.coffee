@@ -3,8 +3,9 @@ _ = require('lodash')
 Context = require('./context')
 
 Player = require('./wis/player')
-gameFsm = require('./wis/game')
+
 Fmt = require('./wis/sn')
+postal = require('postal')
 
 module.exports = (io, socket) ->
     roomId = socket.handshake.query.rid
@@ -14,6 +15,11 @@ module.exports = (io, socket) ->
             team: Fmt.teamname()
         }
 
+    FSM = Context.one "gamefsm:#{roomId}", ()->
+        require('./wis/gamefsm')(roomId, io)
+
+    channel = postal.channel('wis')
+
     socket.on 'game:create', (opt, fn)->
         fn(room)
         setupGame(roomId, io, socket)
@@ -22,25 +28,29 @@ module.exports = (io, socket) ->
         sid = socket.handshake.sessionID
         uid = socket.handshake.uid
 
-        game = Context.one "game:#{roomId}", ()->gameFsm(roomId, io)
+        channel.publish topic: 'initialized'
 
         player = new Player(uid: uid, socketID: socket.id, io: io)
-        player.fillout().then(->game.in(player))
+        player.fillout().then(->
+            channel.publish topic:'in', data:player
+        )
 
         socket.on 'game:debug', ()->
             # game.debug()
 
         socket.on 'game:start', ()->
-            game.go()
+            channel.publish topic: 'go'
 
         socket.on 'game:speak', _.wrap socket, (socket, msg)->
-            game.speak(socket, msg)
+            channel.publish topic:'speak', data:{from:socket, message:msg}
 
         socket.on 'game:vote', _.wrap socket, (socket, target, fn)->
-            game.vote(socket, target, fn)
+            channel.publish topic:'vote', data:{
+                from:socket, target:target, callback:fn
+            }
 
         socket.on 'disconnect', ()->
-            game.out(player)
+            channel.publish topic:'out', data:player
 
         return
 

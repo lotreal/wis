@@ -30,7 +30,7 @@
           <li class="list-group-item" ng-repeat="item in list"
               ng-click="vote($index)"
               >
-            <span id="balloon-{{$index}}" popover-placement="right" popover="{{chats[$index]}}" popover-trigger="toggle">{{item}}</span>
+            <span id="balloon-{{$index}}" popover-placement="right" popover="{{chats[$index]}}" popover-trigger="focus">{{item}}</span>
           </li>
         </ul>
       </div>

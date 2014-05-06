@@ -65,8 +65,8 @@ module.exports = (->
 
         emitMemberChange: ->
             postal.publish(
-                channel : "game"
-                topic   : "member.change",
+                channel : "wis"
+                topic   : "#{@id}.member.change",
                 data    : @
             )
 

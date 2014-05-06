@@ -39,14 +39,15 @@ angular.module('WisApp').controller 'WisCtrl', [
 
         $scope.keyPress = (evt)->
             if evt.keyCode == 13
-                socket.emit 'game:speak', $scope.input
-                $scope.input = ''
+                if $scope.input
+                    socket.emit 'game:speak', $scope.input
+                    $scope.input = ''
 
         socket.on 'game:chat', (chat)->
             index = chat.index
             $scope.chats[index] = chat.message
             el = angular.element(document.getElementById('balloon-'+index))
-            el.triggerHandler('toggle')
+            el.triggerHandler('focus')
 
         socket.emit 'game:create', {}, (room)->
             init(room)
