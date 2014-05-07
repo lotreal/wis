@@ -17,6 +17,17 @@ class Store
         @logs[page][from.id] = message
         return
 
+    loadWaitroom: ->
+        players = _.map @team.getMember(), (p, i)->
+            return {
+                uid: p.getId()
+                flag: if i == 0 then 'master' else ''
+                ready: false
+                name: p.profile.name
+                slogan: p.profile.slogan
+            }
+        return players
+
     prepareVote: ->
         @currentVote = new Vote(@team.getPlayer().length)
         return

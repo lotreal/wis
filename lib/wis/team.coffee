@@ -31,15 +31,14 @@ module.exports = (->
 
         broadcast: (group, event, data)->
             target = if group == 'all' then @getMember() else @group[group]
-            for p in @getMember()
-                postal.publish(
-                    channel : "wis"
-                    topic   : "socket.io.emit",
-                    data    :
-                        target: target
-                        event:  event
-                        data:   data
-                )
+            postal.publish(
+                channel : "wis"
+                topic   : "socket.io.emit",
+                data    :
+                    target: target
+                    event:  event
+                    data:   data
+            )
             return
 
         hit: (player)->
@@ -53,21 +52,12 @@ module.exports = (->
 
         add: (player)->
             uid = player.getId()
-            leave = @disconnected[uid]
-            if leave
-                clearTimeout(leave)
-                p = _.find(@getMember(), (p)->p.getId() == uid)
-                console.log reflash: "#{uid}<<<#{@id}>>>#{p.socketID}"
-                delete @disconnected[uid]
-            else
-                _.remove(@member, (p)->p.id == player.id) if @member
+            unless _.find(@member, (p)->p.getId() == uid)
                 @member.push(player)
-                console.log in: "#{player.id}<<<#{@id}>>>#{player.socketID}"
                 @emitMemberChange()
 
         remove: (player)->
             _.remove(@member, (p)->p.id == player.id)
-            console.log out: "#{player.id}<<<#{@id}>>>#{player.socketID}"
             @emitMemberChange()
 
         disconnect: (player)->

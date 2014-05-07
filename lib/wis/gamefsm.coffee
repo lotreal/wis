@@ -9,12 +9,14 @@ config = require('../config/config')
 context = require('../context')
 Model = require('../model')
 User = Model.user
+Player = require('./player')
 Team = require('./team')
 Promise = require('bluebird')
 Fmt = require('./sn')
 word = require('./word')
 Logger = require('./store')
 conn = require('./connection')
+util = require('../util')
 
 countdown = (team, evt, count, message, done)->
     fn = ->
@@ -27,11 +29,11 @@ countdown = (team, evt, count, message, done)->
     return fn()
 
 
-module.exports = (rid, io)->
+create = (rid)->
     game = new machina.Fsm(
         initialState: 'uninitialized'
 
-        namespace: 'wis'
+        namespace: "wis.#{rid}"
 
         states:
             uninitialized:
@@ -51,15 +53,14 @@ module.exports = (rid, io)->
                     console.log 'enter ready'
 
                 update: ->
-                    players = _.map @team.getMember(), (p, i)->
-                        return {
-                            uid: p.id
-                            flag: if i == 0 then 'master' else ''
-                            ready: false
-                            name: p.profile.name
-                            slogan: p.profile.slogan
-                        }
+                    players = @logger.loadWaitroom()
                     @team.broadcast 'all', 'game:player:update', players
+
+                ready: (from)->
+                    uid = conn.findUser(from.id)
+                    player = _.find(@team.getMember(), (p)->p.getId() == uid)
+                    res = uid:uid, ready:player.toggleReady()
+                    @team.broadcast 'all', 'game:ready', res
 
                 in: (player)->
                     @team.add player
@@ -71,7 +72,8 @@ module.exports = (rid, io)->
 
                 speak: (data)->
                     console.log "#{data.from.id}: #{data.message}"
-                    i = _.findIndex(@team.getMember(), uid: conn.findUser(data.from.id))
+                    i = _.findIndex(@team.getMember(),
+                        uid: conn.findUser(data.from.id))
                     player = @team.getMember()[i]
                     player.message = data.message
 
@@ -130,4 +132,34 @@ module.exports = (rid, io)->
 
     )
 
+    postal.subscribe(
+        channel : 'connection'
+        topic   : "in.#{rid}"
+        callback: (uid, envelope)->
+            player = new Player(uid)
+            player.fillout().then(->
+                game.handle('in', player)
+            )
+    )
+
+    postal.subscribe(
+        channel : 'connection'
+        topic   : "out.#{rid}"
+        callback: (uid, envelope)->
+            player = new Player(uid)
+            game.handle('out', player)
+    )
+
+    postal.subscribe(
+        channel : "wis.#{rid}"
+        topic   : 'load'
+        callback: (callback, envelope)->
+            data = game.logger.loadWaitroom()
+            callback(data)
+    )
+
     return game
+
+exports.create = create
+exports.getInstance = (rid)->
+    return util.singletons("gamefsm:#{rid}", ->create(rid))

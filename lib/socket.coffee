@@ -6,35 +6,39 @@ postal = require('postal')
 Context = require('./context')
 Player = require('./wis/player')
 Fmt = require('./wis/sn')
+game = require('./wis/gamefsm')
+connect = require('./wis/connection')
+
+# 建立游戏房间
+testgame = game.getInstance('1ntlvb7r')
+testgame.handle('initialized')
+room =
+    name: '康熙字典'
+    team: Fmt.teamname()
 
 module.exports = (socket) ->
-    conn = require('./wis/connection').connect(socket)
+    connect.connect(socket)
 
-    roomId = conn.roomId
 
-    room =
-        name: '康熙字典'
-        team: Fmt.teamname()
+    channel = postal.channel("wis.#{connect.findRoom(socket.id)}")
 
-    FSM = Context.one "gamefsm:#{roomId}", ()->
-        require('./wis/gamefsm')(roomId)
+    socket.on 'game:load', (opt, callback)->
+        channel.publish topic: 'load', data:callback
 
-    channel = postal.channel('wis')
+    socket.on 'game:ready', ->
+        channel.publish topic: 'ready', data:socket
 
-    socket.on 'game:create', (opt, fn)->
-        fn(room)
-        setupGame(roomId, socket)
 
-    setupGame = (roomId, socket)->
-        sid = socket.handshake.sessionID
-        uid = socket.handshake.uid
 
-        channel.publish topic: 'initialized'
 
-        player = new Player(uid)
-        player.fillout().then(->
-            channel.publish topic:'in', data:player
-        )
+
+    # setupGame(conn, socket)
+    socket.on 'game:debug', ()->
+        # game.debug()
+
+    setupGame = (conn, socket)->
+        # sessionId = socket.handshake.sessionID
+        uid = connect.findUser(socket.id)
 
         socket.on 'game:debug', ()->
             # game.debug()
@@ -49,9 +53,6 @@ module.exports = (socket) ->
             channel.publish topic:'vote', data:{
                 from:socket, target:target, callback:fn
             }
-
-        socket.on 'disconnect', ()->
-            channel.publish topic:'out', data:player
 
         return
 
