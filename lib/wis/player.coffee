@@ -17,7 +17,7 @@ class Player
     fillout: ->
         self = @
         return new Promise (resolve, reject)->
-            User.id(self.uid).then (user)->
+            User.id(self.getId()).then (user)->
                 self.profile = user.profile
                 resolve self
 

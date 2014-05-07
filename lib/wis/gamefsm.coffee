@@ -53,6 +53,7 @@ create = (rid)->
                     console.log 'enter ready'
 
                 update: ->
+                    console.log team: @team.getMember()
                     players = @logger.loadWaitroom()
                     @team.broadcast 'all', 'game:player:update', players
 
@@ -64,10 +65,12 @@ create = (rid)->
 
                 in: (player)->
                     @team.add player
+                    console.log addPlayer:player
                     @.handle('update')
 
                 out: (player)->
-                    @team.disconnect player
+                    @team.remove player
+                    console.log remove:player
                     @.handle('update')
 
                 speak: (data)->

@@ -13,6 +13,12 @@ channel = postal.channel('connection')
 
 id = (uid, rid)->"#{uid}@#{rid}"
 
+# 用户是否已连入房间
+inRoom = (uid, rid)->
+    rids = _.map(findSockets(uid), (sid)->rooms[sid])
+    return _.contains(rids, rid)
+
+# 得到用户的所有连接
 findSockets = (uid)->
     sockets = []
     for k, v of connectionPool
@@ -20,9 +26,11 @@ findSockets = (uid)->
     # console.log uid:uid, sockets:sockets
     return sockets
 
+# sockets -> uid
 findUser = (socketId)->
     return connectionPool[socketId] || null
 
+# sockets -> roomId
 findRoom = (socketId)->
     return rooms[socketId] || null
 
@@ -34,7 +42,7 @@ disconnect = (socket)->
     publish = (uid, rid, sid)->
         delete flashTimeout[id(uid, rid)]
 
-        unless _.find(rooms, (v)->v == rid)
+        unless inRoom(uid, rid)
             channel.publish "out.#{rid}", uid
             console.log out: "#{uid}@#{rid}<<<#{sid}>>>"
 
@@ -58,8 +66,7 @@ connect = (socket)->
         console.log flash: "#{uid}@#{rid}<<<#{sid}>>>"
         # channel.publish "flash.#{rid}", uid
     else
-        rids = _.map(findSockets(uid), (sid)->rooms[sid])
-        unless _.contains(rids, rid)
+        unless inRoom(uid, rid)
             channel.publish "in.#{rid}", uid
             console.log in: "#{uid}@#{rid}<<<#{sid}>>>"
 

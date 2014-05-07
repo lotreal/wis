@@ -51,29 +51,13 @@ module.exports = (->
             return 'unknown'
 
         add: (player)->
-            uid = player.getId()
-            unless _.find(@member, (p)->p.getId() == uid)
+            unless _.find(@member, (p)->p.getId() == player.getId())
                 @member.push(player)
                 @emitMemberChange()
 
         remove: (player)->
-            _.remove(@member, (p)->p.id == player.id)
+            _.remove(@member, (p)->p.getId() == player.getId())
             @emitMemberChange()
-
-        disconnect: (player)->
-            uid = player.getId()
-
-            fn = ->
-                @remove(player)
-                delete @disconnected[uid]
-
-            # 如果 2 秒内重连，则只更换 socketId，不实际 remove
-            @disconnected[uid] = setTimeout(_.bind(fn, this), 2000)
-            return @disconnected[uid]
-
-
-        batchAdd: (member)->
-            @add(p) for p in member
 
         emitMemberChange: ->
             postal.publish(

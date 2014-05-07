@@ -3,7 +3,12 @@ angular.module('WisApp').controller 'WisCtrl', [
     '$scope', 'socketFactory', '$routeParams', 'localize', '$cookies'
     ($scope, socketFactory, $routeParams, localize, $cookies) ->
         ctx =
-            uid: $cookies['wis:uid']
+            user:
+                id: $cookies['wis:uid']
+            player
+            waitRoomAction: '准备'
+
+        $scope.ctx = ctx
 
         $('#wis-input').focus();
 
@@ -51,6 +56,7 @@ angular.module('WisApp').controller 'WisCtrl', [
 
             socket.on 'connect', ->
                 socket.emit 'game:load', {}, (res)->
+                    console.log load: res
                     $scope.players = res
 
             # socket.emit 'game:create', {}, (room)->
@@ -102,7 +108,8 @@ angular.module('WisApp').controller 'WisCtrl', [
             socket.on 'game:ready', (res)->
                 find = _.find $scope.players, (p)->p.uid == res.uid
                 find.ready = res.ready
-                console.log 'start', res
+                if find.uid == ctx.user.id
+                    $scope.ctx.waitRoomAction = if find.ready then '取消准备' else '准备'
 
             return socket
 
@@ -120,7 +127,7 @@ angular.module('WisApp').controller 'WisCtrl', [
             socket.emit 'game:debug', {}
 
         $scope.start = ->
-            socket.emit 'game:ready', ctx.uid
+            socket.emit 'game:ready', ctx.user.id
 
         $scope.startGame = ->
             console.log 'start'

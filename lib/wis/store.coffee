@@ -22,7 +22,8 @@ class Store
             return {
                 uid: p.getId()
                 flag: if i == 0 then 'master' else ''
-                ready: false
+
+                ready: p.ready
                 name: p.profile.name
                 slogan: p.profile.slogan
             }
