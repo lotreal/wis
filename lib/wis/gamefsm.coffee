@@ -60,7 +60,7 @@ create = (rid)->
                 ready: (from)->
                     uid = conn.findUser(from.id)
                     player = _.find(@team.getMember(), (p)->p.getId() == uid)
-                    res = uid:uid, ready:player.toggleReady()
+                    res = uid:uid, isReady:player.toggleReady()
                     @team.broadcast 'all', 'game:ready', res
 
                 in: (player)->
@@ -158,6 +158,7 @@ create = (rid)->
         topic   : 'reflash'
         callback: (callback, envelope)->
             data = game.logger.loadWaitroom()
+            data.state = game.state
             callback(data)
     )
 

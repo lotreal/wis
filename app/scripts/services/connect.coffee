@@ -56,7 +56,7 @@ angular.module('wis.connect', [])
                     find.flag = 'master'
 
                 socket.on 'game:ready', (data)->
-                    fsm.handle('getReady', data)
+                    fsm.handle('usermod', data)
 
                 return socket
         }

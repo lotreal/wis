@@ -21,11 +21,11 @@ class Store
         players = _.map @team.getMember(), (p, i)->
             return {
                 uid: p.getId()
-                flag: if i == 0 then 'master' else ''
-
-                ready: p.ready
                 name: p.profile.name
                 slogan: p.profile.slogan
+
+                isMaster: i == 0
+                isReady: p.ready
             }
         return members: players
 

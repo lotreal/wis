@@ -8,13 +8,29 @@ angular.module('wis.game', ['wis.api'])
         fsm = ($scope, socket) ->
             model = $scope.model
 
-            ImMaster = ->
-                master = _.find model.members, (p)->
-                    p.flag == 'master' && p.uid == model.profile.uid
-                return _.isObject(master) && master.uid == model.profile.uid
+            class Player
+                @get: (p)->
+                    return new Player(p.uid)
 
-            bootstrap = (game)->
-                return
+                constructor: (@uid) ->
+
+                @setFlag: (p)->
+                    p.flag = ''
+                    p.flag = 'ready' if p.isReady
+                    p.flag = 'master' if p.isMaster
+                    return p
+
+                @find: (player)->
+                    return _.find model.members, (p)->p.uid == player.uid
+
+                @isMe: (player)->
+                    return player.uid == model.profile.uid
+
+                @me: ->
+                    @find(model.profile)
+
+                @flag: ->
+                    @setFlag(@me()).flag
 
             game = new machina.Fsm(
                 initialState: 'uninitialized'
@@ -22,77 +38,76 @@ angular.module('wis.game', ['wis.api'])
 
                 sync: (rid)->
                     console.log 'sync game data'
-                    api.getRoom(rid).then _.bind(@load, @)
-
-                load: (data)->
-                    console.log load: data
-                    model.room = data.room
-                    model.profile = data.profile
-                    model.members = data.members
-
-                    # TODO fix this
-                    model.chats = [0..99]
-
-                    $scope.start = ->
-                        game.handle('action')
-
-                    $scope.startGame = ->
-                        console.log 'start'
-                        socket.emit 'game:start', {}
-
-                    $scope.vote = (idx)->
-                        socket.emit 'game:vote', idx, (res)->
-                            $scope.subtitle = res
-
-                    $scope.keyPress = (evt)->
-                        if evt.keyCode == 13
-                            if $scope.input
-                                socket.emit 'game:speak', $scope.input
-                                $scope.input = ''
-
-                    $scope.print = ->console.log 'print'
-
-                    $scope.debug = ->
-                        console.log 'debug'
-                        api.testll()
-                        socket.emit 'game:debug', {}
-
-                    @transition if model.state then model.state else 'waitroom'
+                    api.getRoom(rid).then(
+                        _.bind(
+                            (data)->
+                                @handle('initialized', data)
+                                @handle('load', data)
+                            @
+                        )
+                        (err)->
+                    )
 
                 states:
                     uninitialized:
                         initialized: (data)->
-                            initialized: (data)->
+                            console.log load: data
+                            model.room = data.room
+                            model.profile = data.profile
 
+                            _.map data.members, (p)->
+                                Player.setFlag(p)
 
-                    waitroom:
+                            model.members = data.members
+
+                            $scope.action = ->
+                                game.handle('action')
+
+                            $scope.speak = (evt)->
+                                if evt.keyCode == 13
+                                    if $scope.input
+                                        socket.emit 'game:speak', $scope.input
+                                        $scope.input = ''
+
+                            state = data.state
+                            @transition if state then state else 'ready'
+
+                    ready:
                         _onEnter: ->
-                            @round = 0
-                            $('#wis-input').focus()
+                            model.round = 0
+                            @handle('usermod', Player.me())
+
                             $scope.getBoard = ->
                                 num = model.members.length
                                 api.printf(model.room.team, num) if num > 0
 
-                            model.waitRoomAction = if ImMaster() then '开始' else '准备'
-                            @handle 'getReady'
-
+                            $('#wis-input').focus()
                             console.log 'enter waitroom'
 
-                        async: (data)->
+                        load: (data)->
+                            # TODO fix this
+                            model.chats = [0..99]
 
                         action: (data)->
-                            unless ImMaster()
-                                socket.emit 'game:ready', model.profile.uid
-                            else
+                            if Player.flag() == 'master'
+                                socket.emit 'game:start', {}
                                 console.log 'start game'
+                            else
+                                socket.emit 'game:ready', model.profile.uid
 
-                        getReady: (data)->
-                            console.log 'getReady'
+                        usermod: (data)->
                             return unless data
-                            find = _.find model.members, (p)->p.uid == data.uid
-                            find.ready = data.ready
-                            if find.uid == model.profile.uid
-                                model.waitRoomAction = if find.ready then '取消准备' else '准备'
+                            Player.setFlag(data)
+                            console.log "#{data.uid} have been ready", data
+
+                            find = Player.find(data)
+                            flag = _.merge(find, data)
+
+                            if Player.isMe(find)
+                                label = '准备'
+                                label = '取消准备' if find.flag == 'ready'
+                                label = '开始' if find.flag == 'master'
+                                model.actionLabel = label
 
 
                         getMaster: (master)->
@@ -103,9 +118,12 @@ angular.module('wis.game', ['wis.api'])
                             if master.uid == model.profile.uid
                                 @transition 'master@waitroom'
 
-                    'master@waitroom':
+                    play:
                         _onEnter: ->
-                            model.waitRoomAction = '开始'
+                            $scope.vote = (idx)->
+                                socket.emit 'game:vote', idx, (res)->
+                                    $scope.subtitle = res
+
             )
             return game
         return fsm

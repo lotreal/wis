@@ -4,11 +4,6 @@
     <div class="wis-container">
 
       <div class="btn-group btn-personal" dropdown is-open="status.isopen">
-        <button ng-click="connect()"
-                type="button" class="btn btn-w-md btn-gap-v btn-line-default">上线</button>
-        <button ng-click="disconnect()"
-                type="button" class="btn btn-w-md btn-gap-v btn-line-default">下线</button>
-
         <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
           选项
           <span class="caret"></span>
@@ -39,7 +34,7 @@
                  id="wis-input"
                  class="form-control"
                  placeholder="{{getBoard()}}"
-                 ng-keydown="keyPress($event);"
+                 ng-keydown="speak($event);"
                  ng-model="input"
                  >
         </div>
@@ -63,7 +58,7 @@
 
         <ul class="list-unstyled list-wis">
           <li class="list-group-item" ng-repeat="data in model.members"
-              x-ng-class="{'bg-info': data.ready}"
+              x-ng-class="{'bg-info': data.flag == 'ready', 'bg-default': data.flag == 'master'}"
               ng-click="vote($index)"
               >
             <span x-ng-if="data.flag == 'master'"
@@ -87,8 +82,8 @@
 
           <li>
             <section class="row text-center">
-              <button class="btn btn-w-md btn-gap-v btn-line-primary" ng-click="start()">
-                {{model.waitRoomAction}}
+              <button class="btn btn-w-md btn-gap-v btn-line-primary" ng-click="action()">
+                {{model.actionLabel}}
               </button>
             </section>
           </li>
@@ -112,7 +107,7 @@
         </div>
 
         <ul class="list-unstyled list-info">
-          <li class="list-group-item" ng-repeat="data in speak"
+          <li class="list-group-item" ng-repeat="data in speaks"
               ng-click="vote($index)"
               >
             <span x-ng-if="data.flag == 'turn'"
