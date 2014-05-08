@@ -27,13 +27,13 @@
 
       <div class="panel panel-default">
         <div class="input-group input-group-lg">
-          <span class="input-group-addon" ng-click="startGame()">
+          <span class="input-group-addon" ng-click="">
             <span class="glyphicon glyphicon-book"></span>
           </span>
           <input type="text"
                  id="wis-input"
                  class="form-control"
-                 placeholder="{{getBoard()}}"
+                 placeholder="{{getTips()}}"
                  ng-keydown="speak($event);"
                  ng-model="input"
                  >
@@ -52,7 +52,7 @@
         <div class="panel-heading">
           <strong>
             <span class="glyphicon glyphicon-home" ng-click="debug()"></span>
-            {{model.room.name}}
+            {{model.room.name}}（{{getBoard()}}）
           </strong>
         </div>
 
@@ -69,16 +69,15 @@
 
             <span id="balloon-{{$index}}"
                   class="wis-balloon"
-                  x-ng-class="{me: data.uid == uid}"
                   popover-placement="right"
-                  popover="{{chats[$index]}}"
+                  popover="{{model.chats[$index]}}"
                   popover-trigger="focus"
                   >
               <strong>
-                {{data.name}}
+                {{data.name}}：
               </strong>
+              {{data.slogan}}
             </span>
-            {{data.slogan}}
           </li>
 
           <li>

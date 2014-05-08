@@ -79,12 +79,12 @@ create = (rid)->
 
                 speak: (data)->
                     console.log "#{data.from.id}: #{data.message}"
-                    i = _.findIndex(@team.getMember(),
-                        uid: conn.findUser(data.from.id))
+                    uid = conn.findUser(data.from.id)
+                    i = _.findIndex(@team.getMember(), uid:uid)
                     player = @team.getMember()[i]
                     player.message = data.message
 
-                    @team.broadcast 'all', 'game:chat', {index:i,message:data.message}
+                    @team.broadcast 'all', 'game:chat', {index:i,message:data.message,uid:uid}
 
                 go: ->
                     done = ->

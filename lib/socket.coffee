@@ -21,6 +21,8 @@ module.exports = (socket) ->
     socket.on 'game:ready', ->
         channel.publish topic: 'ready', data:socket
 
+    socket.on 'game:speak', _.wrap socket, (socket, msg)->
+        channel.publish topic:'speak', data:{from:socket, message:msg}
 
     setupGame = (conn, socket)->
         # sessionId = socket.handshake.sessionID
@@ -32,8 +34,6 @@ module.exports = (socket) ->
         socket.on 'game:start', ()->
             channel.publish topic: 'go'
 
-        socket.on 'game:speak', _.wrap socket, (socket, msg)->
-            channel.publish topic:'speak', data:{from:socket, message:msg}
 
         socket.on 'game:vote', _.wrap socket, (socket, target, fn)->
             channel.publish topic:'vote', data:{

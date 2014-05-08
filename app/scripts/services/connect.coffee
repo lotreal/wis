@@ -17,14 +17,8 @@ angular.module('wis.connect', [])
                 socket.on 'game:player:update', (data) ->
                     fsm.handle('load', data)
 
-                socket.on 'game:chat', (chat)->
-                    index = chat.index
-                    $scope.chats[index] = chat.message
-                    console.log "#{index}: #{chat.message}"
-                    el = $('#balloon-'+index)
-                    el.triggerHandler('focus')
-
-
+                socket.on 'game:chat', (data)->
+                    fsm.handle('speak', data)
 
                 socket.on 'game:start:count', (data) ->
                     $scope.subtitle = sprintf(data.message, data.count)

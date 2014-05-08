@@ -5,6 +5,11 @@ angular.module('wis.game', ['wis.api'])
 .factory("game", [
     "api", "$q"
     (api, $q) ->
+        timeoutHandler = {}
+        setTimeoutIfNo = (fn, timeout, key)->
+            clearTimeout(timeoutHandler[key])
+            timeoutHandler[key] = setTimeout(fn, timeout)
+
         fsm = ($scope, socket) ->
             model = $scope.model
 
@@ -31,6 +36,16 @@ angular.module('wis.game', ['wis.api'])
 
                 @flag: ->
                     @setFlag(@me()).flag
+
+                @setBalloon: (uid, message)->
+                    index = _.findIndex(model.members, uid:uid)
+                    model.chats[index] = message
+                    # trigger 'focus' let popover show
+                    ballon = $('#balloon-'+index)
+                    ballon.triggerHandler('focus')
+                    hide = ->ballon.triggerHandler('blur')
+                    setTimeoutIfNo(hide, 6000, "hide-ballon-#{uid}")
+
 
             game = new machina.Fsm(
                 initialState: 'uninitialized'
@@ -65,6 +80,7 @@ angular.module('wis.game', ['wis.api'])
                                 if evt.keyCode == 13
                                     if $scope.input
                                         socket.emit 'game:speak', $scope.input
+                                        console.log 'input - ', $scope.input
                                         $scope.input = ''
 
                             $scope.print = ->console.log 'print'
@@ -110,14 +126,9 @@ angular.module('wis.game', ['wis.api'])
                                 label = '开始' if find.flag == 'master'
                                 model.actionLabel = label
 
-
-                        getMaster: (master)->
-                            console.log setMaster: master
-                            @master.role = '' if @master
-                            @master = master
-                            master.role = 'master'
-                            if master.uid == model.profile.uid
-                                @transition 'master@waitroom'
+                        speak: (chat)->
+                            console.log "chat - #{chat.uid}: #{chat.message}"
+                            Player.setBalloon(chat.uid, chat.message)
 
                     play:
                         _onEnter: ->
