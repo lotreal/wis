@@ -2,6 +2,7 @@
 
 _ = require('lodash')
 postal = require('postal')
+async = require('async')
 
 passport = require('../passport')
 Player = require('../wis/player')
@@ -13,15 +14,22 @@ exports.getRoom = (req, res) ->
     token = req.session.token
     passport.verify token, (err, decoded)->
         return res.json [err] if err
-        player = new Player(decoded.uid)
-        player.fillout().then ->
-            data =
-                room:
-                    name: '康熙字典'
-                    team: Fmt.teamname()
-                profile: player
-            channel = postal.channel("wis.#{rid}")
-            channel.publish topic: 'reflash', data:(snapshoot)->
-                data = _.merge(data, snapshoot)
+
+        async.waterfall [
+            (done)->
+                player = new Player(decoded.uid)
+                player.fillout().then (filled)->
+                    data =
+                        room:
+                            name: '康熙字典'
+                            team: Fmt.teamname()
+                        profile: filled
+                    done(null, data)
+            (data, done)->
+                channel = postal.channel("wis.#{rid}")
+                channel.publish topic: 'reflash', data:(snapshoot)->
+                    done(null,  _.merge(data, snapshoot))
+            (data)->
                 res.json [null, data]
+        ]
     return

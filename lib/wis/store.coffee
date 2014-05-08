@@ -27,7 +27,7 @@ class Store
                 name: p.profile.name
                 slogan: p.profile.slogan
             }
-        return member: players
+        return members: players
 
     prepareVote: ->
         @currentVote = new Vote(@team.getPlayer().length)

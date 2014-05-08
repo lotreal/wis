@@ -15,15 +15,9 @@ angular.module('wis.connect', [])
 
                 # socket.on 'connect', ->
 
-                socket.on 'game:player:update', (list) ->
-                    # fsm.transition('uninitialized')
-                    # $scope.realStart = if $scope.user.flag == 'master' then '开始' else '准备'
-                    $scope.model.members = list
-                    # game.handle('board')
-                    console.log 'game:player:update'
-
-                # socket.emit 'game:create', {}, (room)->
-                #     init(room)
+                socket.on 'game:player:update', (data) ->
+                    console.log 'game:player:update': data
+                    $scope.model.members = data.members
 
                 socket.on 'game:chat', (chat)->
                     index = chat.index

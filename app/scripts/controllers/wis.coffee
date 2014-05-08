@@ -79,6 +79,7 @@ angular.module('wis.app', ['wis.connect', 'wis.api'])
                 console.log data
                 model.room = data.room
                 model.profile = data.profile
+                model.members = data.members
                 game.handle('initialized')
 
             (err)->
