@@ -55,10 +55,8 @@ angular.module('wis.game', ['wis.api'])
                             model.room = data.room
                             model.profile = data.profile
 
-                            _.map data.members, (p)->
-                                Player.setFlag(p)
-
-                            model.members = data.members
+                            # TODO fix this
+                            model.chats = [0..99]
 
                             $scope.action = ->
                                 game.handle('action')
@@ -69,24 +67,27 @@ angular.module('wis.game', ['wis.api'])
                                         socket.emit 'game:speak', $scope.input
                                         $scope.input = ''
 
+                            $scope.print = ->console.log 'print'
+
                             state = data.state
                             @transition if state then state else 'ready'
 
                     ready:
                         _onEnter: ->
                             model.round = 0
-                            @handle('usermod', Player.me())
 
                             $scope.getBoard = ->
                                 num = model.members.length
-                                api.printf(model.room.team, num) if num > 0
+                                api.teamname(model.room.team, num) if num > 0
 
                             $('#wis-input').focus()
                             console.log 'enter waitroom'
 
                         load: (data)->
-                            # TODO fix this
-                            model.chats = [0..99]
+                            _.map data.members, (p)->
+                                Player.setFlag(p)
+                            model.members = data.members
+                            @handle('usermod', Player.me())
 
                         action: (data)->
                             if Player.flag() == 'master'
@@ -98,7 +99,7 @@ angular.module('wis.game', ['wis.api'])
                         usermod: (data)->
                             return unless data
                             Player.setFlag(data)
-                            console.log "#{data.uid} have been ready", data
+                            console.log "usermod #{data.uid}", data
 
                             find = Player.find(data)
                             flag = _.merge(find, data)

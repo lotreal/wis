@@ -1,5 +1,7 @@
 'use strict'
+
 _ = require('lodash')
+sprintf = require('sprintf-js').sprintf
 
 N = (n, start)->
     start = 0 unless start
@@ -8,8 +10,7 @@ N = (n, start)->
 
 exports.N = N
 
-exports.teamname = (n)->
-    n = '%s' unless n
+team = exports.team = ->
     prefix = [
         '戊戌'
         '扬州'
@@ -26,6 +27,8 @@ exports.teamname = (n)->
         '华山'
         '正大'
         '江南'
+        '歌乐山'
+        '缙云山'
         '平顶山'
         '双龙山'
         '大渡口'
@@ -40,26 +43,41 @@ exports.teamname = (n)->
         ]
     postfix = [
         '贤'
-        '君子'
-        '骄'
-        '杰'
-        '俊'
-        '霸'
-        '怪'
-        '虎'
-        '鹰'
-        '少'
-        '剑'
-        '英'
-        '怪'
-        '圣'
-        '雄'
-        '豪'
-        '壕'
+        ['骄', {2: '双'}]
+        ['杰', {2: '双'}]
+        ['俊', {2: '双'}]
+        ['怪', {2: '双'}]
+        ['鹰', {2: '双'}]
+        ['少', {2: '双'}]
+        ['剑', {2: '双'}]
+        ['英', {2: '双'}]
+        ['圣', {2: '双'}]
+        ['雄', {2: '双'}]
+        ['豪', {2: '双'}]
+        ['壕', {2: '双'}]
+        ['虎', {2: '两'}]
+        ['霸', {2: '两'}]
+        ['小撮不明真相地群众', {2: '两'}]
+        ['大才子', {2: '两'}]
         ]
-    # n = cnNum(n) if _.isNumber(n)
-    _.sample(prefix) + n + _.sample(postfix)
+    pre = _.sample(prefix)
+    post = _.sample(postfix)
 
+    if _.isString(post)
+        return "#{pre}%s#{post}"
+    else
+        return ["#{pre}%s#{post[0]}", post[1]]
 
-exports.list = (list)->
-    (N(i) + '、' + p for p,i in list)
+teamname = exports.teamname = (pattern, num)->
+    if _.isString(pattern)
+        return sprintf(pattern, N(num, 1))
+    else
+        pat = pattern[0]
+        replaces = pattern[1]
+        if replaces[num] != undefined
+            n = replaces[num]
+            return sprintf(pat, n)
+        else
+            return teamname(pat, num)
+
+# console.log teamname(team(), 2)

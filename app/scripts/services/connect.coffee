@@ -15,8 +15,7 @@ angular.module('wis.connect', [])
                 model = $scope.model
 
                 socket.on 'game:player:update', (data) ->
-                    console.log 'game:player:update': data
-                    model.members = data.members
+                    fsm.handle('load', data)
 
                 socket.on 'game:chat', (chat)->
                     index = chat.index

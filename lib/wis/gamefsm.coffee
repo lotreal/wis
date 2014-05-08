@@ -60,8 +60,12 @@ create = (rid)->
                 ready: (from)->
                     uid = conn.findUser(from.id)
                     player = _.find(@team.getMember(), (p)->p.getId() == uid)
-                    res = uid:uid, isReady:player.toggleReady()
-                    @team.broadcast 'all', 'game:ready', res
+                    index = _.findIndex(@team.getMember, (p)->p.getId() == uid)
+                    mod =
+                        uid:uid
+                        isReady:player.toggleReady()
+                        isMaster:index == 0
+                    @team.broadcast 'all', 'game:ready', mod
 
                 in: (player)->
                     @team.add player

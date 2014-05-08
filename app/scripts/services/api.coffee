@@ -8,11 +8,20 @@ angular.module('wis.api', [])
         return {
             N: (n, start) ->
                 start = 0 unless start
-                a = ['一','双','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','廿','廿一','廿二','廿三','廿四']
+                a = ['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','廿','廿一','廿二','廿三','廿四']
                 a[n-start]
 
-            printf: (template, num)->
-                sprintf(template, @N(num, 1))
+            teamname: (pattern, num)->
+                if _.isString(pattern)
+                    return sprintf(pattern, @N(num, 1))
+                else
+                    pat = pattern[0]
+                    replaces = pattern[1]
+                    if replaces[num] != undefined
+                        n = replaces[num]
+                        return sprintf(pat, n)
+                    else
+                        return @teamname(pat, num)
 
             getRoom: (rid)->
                 d = $q.defer()

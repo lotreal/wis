@@ -22,7 +22,7 @@ exports.getRoom = (req, res) ->
                     data =
                         room:
                             name: '康熙字典'
-                            team: Fmt.teamname()
+                            team: Fmt.team()
                         profile: filled
                     done(null, data)
             (data, done)->
