@@ -10,9 +10,13 @@ angular.module('wis.app', ['wis.connect', 'wis.api'])
             room: undefined
             profile: undefined
             members: []
-            waitRoomAction: '准备'
 
-        bootstrap = (ui, socket)->
+        ImMaster = ->
+            master = _.find model.members, (p)->
+                p.flag == 'master' && p.uid == model.profile.uid
+            return _.isObject(master) && master.uid == model.profile.uid
+
+        bootstrap = (ui, game, socket)->
             # ui.chats = []
             # TODO fix this
             ui.chats = [0..99]
@@ -24,7 +28,7 @@ angular.module('wis.app', ['wis.connect', 'wis.api'])
                 socket.emit 'game:debug', {}
 
             ui.start = ->
-                socket.emit 'game:ready', model.profile.uid
+                game.handle('action')
 
             ui.startGame = ->
                 console.log 'start'
@@ -47,25 +51,52 @@ angular.module('wis.app', ['wis.connect', 'wis.api'])
             initialState: 'uninitialized'
             states:
                 uninitialized:
-                    initialized: ->
+                    initialized: (data)->
+                        model.room = data.room
+                        model.profile = data.profile
+                        model.members = data.members
+
                         @socket = connect.room($scope, @, '')
-                        bootstrap($scope, @socket)
-                        $('#wis-input').focus()
-                        @transition 'waitroom'
+                        bootstrap($scope, @, @socket)
+
+                        @transition if model.state then model.state else 'waitroom'
 
                 waitroom:
                     _onEnter: ->
                         @round = 0
+                        $('#wis-input').focus()
                         $scope.getBoard = ->
                             num = model.members.length
                             api.printf(model.room.team, num) if num > 0
+
+                        model.waitRoomAction = if ImMaster() then '开始' else '准备'
+                        @handle 'getReady'
+
                         console.log 'enter waitroom'
 
-                    setMaster: (player)->
+                    async: (data)->
+
+                    action: (data)->
+                        unless ImMaster()
+                            @socket.emit 'game:ready', model.profile.uid
+                        else
+                            console.log 'start game'
+
+                    getReady: (data)->
+                        console.log 'getReady'
+                        return unless data
+                        find = _.find model.members, (p)->p.uid == data.uid
+                        find.ready = data.ready
+                        if find.uid == model.profile.uid
+                            model.waitRoomAction = if find.ready then '取消准备' else '准备'
+
+
+                    getMaster: (master)->
+                        console.log setMaster: master
                         @master.role = '' if @master
-                        @master = player
-                        player.role = 'master'
-                        if player.uid == model.profile.uid
+                        @master = master
+                        master.role = 'master'
+                        if master.uid == model.profile.uid
                             @transition 'master@waitroom'
 
                 'master@waitroom':
@@ -77,10 +108,7 @@ angular.module('wis.app', ['wis.connect', 'wis.api'])
         api.getRoom($routeParams.roomId).then(
             (data)->
                 console.log data
-                model.room = data.room
-                model.profile = data.profile
-                model.members = data.members
-                game.handle('initialized')
+                game.handle('initialized', data)
 
             (err)->
                 console.log err

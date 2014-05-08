@@ -12,9 +12,6 @@ connect = require('./wis/connection')
 # 建立游戏房间
 testgame = game.getInstance('1ntlvb7r')
 testgame.handle('initialized')
-room =
-    name: '康熙字典'
-    team: Fmt.teamname()
 
 module.exports = (socket) ->
     connect.connect(socket)

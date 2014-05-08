@@ -56,12 +56,8 @@ angular.module('wis.connect', [])
                     find = _.find model.members, (p)->p.uid == res.uid
                     find.flag = 'master'
 
-                socket.on 'game:ready', (res)->
-                    find = _.find $scope.model.members, (p)->p.uid == res.uid
-                    find.ready = res.ready
-
-                    if find.uid == model.profile.uid
-                        $scope.model.waitRoomAction = if find.ready then '取消准备' else '准备'
+                socket.on 'game:ready', (data)->
+                    game.handle('getReady', data)
 
                 return socket
         }
