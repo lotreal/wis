@@ -16,6 +16,7 @@ module.exports = (()->
         jwt.sign profile, secret
 
     verify = (token, callback)->
+        return callback('token not set') unless token
         jwt.verify(token, secret, callback)
 
     getSessionID = (req)->

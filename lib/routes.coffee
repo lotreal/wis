@@ -1,8 +1,10 @@
 'use strict'
+
 api = require('./controllers/api')
 index = require('./controllers')
 passport = require('./passport')
 Model = require('./model')
+Player = require('./wis/player')
 
 ###
 Application routes
@@ -28,6 +30,8 @@ module.exports = (app) ->
                 req.session.token = null
                 res.json [err]
         )
+
+    app.post '/api/room', api.getRoom
 
     # All undefined api routes should return a 404
     app.get '/api/*', (req, res) ->

@@ -5,6 +5,8 @@ app = angular.module('WisApp', [
     'ngCookies'
     'ngAnimate'
 
+    'wis.app'
+
     # 3rd Party Modules
     'btford.socket-io'
     'ui.bootstrap'

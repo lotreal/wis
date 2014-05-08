@@ -155,7 +155,7 @@ create = (rid)->
 
     postal.subscribe(
         channel : "wis.#{rid}"
-        topic   : 'load'
+        topic   : 'reflash'
         callback: (callback, envelope)->
             data = game.logger.loadWaitroom()
             callback(data)
