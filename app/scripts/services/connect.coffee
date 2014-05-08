@@ -6,18 +6,17 @@ angular.module('wis.connect', [])
     'socketFactory'
     (socketFactory) ->
         return {
-            room: ($scope, game, rid)->
-                model = $scope.model
-
-                socket = socketFactory({
-                    ioSocket: io.connect('', query: 'rid=1ntlvb7r&token=t')
+            create: (rid)->
+                return socketFactory({
+                    ioSocket: io.connect('', query: "rid=#{rid}")
                 })
 
-                # socket.on 'connect', ->
+            room: (socket, fsm, model, $scope)->
+                model = $scope.model
 
                 socket.on 'game:player:update', (data) ->
                     console.log 'game:player:update': data
-                    $scope.model.members = data.members
+                    model.members = data.members
 
                 socket.on 'game:chat', (chat)->
                     index = chat.index
@@ -57,7 +56,7 @@ angular.module('wis.connect', [])
                     find.flag = 'master'
 
                 socket.on 'game:ready', (data)->
-                    game.handle('getReady', data)
+                    fsm.handle('getReady', data)
 
                 return socket
         }
