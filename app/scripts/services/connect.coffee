@@ -48,7 +48,7 @@ angular.module('wis.connect', [])
                     find = _.find model.members, (p)->p.uid == res.uid
                     find.flag = 'master'
 
-                socket.on 'game:ready', (data)->
+                socket.on 'wis:usermod', (data)->
                     fsm.handle('usermod', data)
 
                 return socket

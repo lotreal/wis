@@ -46,6 +46,9 @@ angular.module('wis.game', ['wis.api'])
                     hide = ->ballon.triggerHandler('blur')
                     setTimeoutIfNo(hide, 6000, "hide-ballon-#{uid}")
 
+                @allReady: ->
+                    _.every(model.members, (p)->p.isMaster || p.isReady)
+
 
             game = new machina.Fsm(
                 initialState: 'uninitialized'
@@ -96,6 +99,13 @@ angular.module('wis.game', ['wis.api'])
                                 num = model.members.length
                                 api.teamname(model.room.team, num) if num > 0
 
+                            $scope.isVisible = (key)->
+                                return key == 'ready'
+
+                            $scope.actionAvailable = ->
+                                return true if Player.flag() != 'master'
+                                return Player.allReady()
+
                             $('#wis-input').focus()
                             console.log 'enter waitroom'
 
@@ -107,10 +117,13 @@ angular.module('wis.game', ['wis.api'])
 
                         action: (data)->
                             if Player.flag() == 'master'
-                                socket.emit 'game:start', {}
+                                console.log Player.allReady()
+                                # socket.emit 'wis:start', {}
                                 console.log 'start game'
+                                @transition('play')
                             else
-                                socket.emit 'game:ready', model.profile.uid
+                                socket.emit 'wis:ready', model.profile.uid
+                                console.log 'ready'
 
                         usermod: (data)->
                             return unless data
@@ -132,6 +145,9 @@ angular.module('wis.game', ['wis.api'])
 
                     play:
                         _onEnter: ->
+                            $scope.isVisible = (key)->
+                                return key == 'play'
+
                             $scope.vote = (idx)->
                                 socket.emit 'game:vote', idx, (res)->
                                     $scope.subtitle = res

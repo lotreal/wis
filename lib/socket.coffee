@@ -18,11 +18,14 @@ module.exports = (socket) ->
 
     channel = postal.channel("wis.#{connect.findRoom(socket.id)}")
 
-    socket.on 'game:ready', ->
+    socket.on 'wis:ready', ->
         channel.publish topic: 'ready', data:socket
 
     socket.on 'game:speak', _.wrap socket, (socket, msg)->
         channel.publish topic:'speak', data:{from:socket, message:msg}
+
+    socket.on 'wis:start', ()->
+        channel.publish topic: 'start'
 
     setupGame = (conn, socket)->
         # sessionId = socket.handshake.sessionID
@@ -31,8 +34,6 @@ module.exports = (socket) ->
         socket.on 'game:debug', ()->
             # game.debug()
 
-        socket.on 'game:start', ()->
-            channel.publish topic: 'go'
 
 
         socket.on 'game:vote', _.wrap socket, (socket, target, fn)->

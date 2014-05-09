@@ -65,17 +65,17 @@ create = (rid)->
                         uid:uid
                         isReady:player.toggleReady()
                         isMaster:index == 0
-                    @team.broadcast 'all', 'game:ready', mod
+                    @team.broadcast 'all', 'wis:usermod', mod
 
                 in: (player)->
                     @team.add player
                     console.log addPlayer:player
-                    @.handle('update')
+                    @handle('update')
 
                 out: (player)->
                     @team.remove player
                     console.log remove:player
-                    @.handle('update')
+                    @handle('update')
 
                 speak: (data)->
                     console.log "#{data.from.id}: #{data.message}"
@@ -86,7 +86,7 @@ create = (rid)->
 
                     @team.broadcast 'all', 'game:chat', {index:i,message:data.message,uid:uid}
 
-                go: ->
+                start: ->
                     done = ->
                         @team.beforePlay()
                         words = if config.env == 'development' then ['CIVIL','SPY'] else word()
