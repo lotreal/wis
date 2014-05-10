@@ -3,6 +3,21 @@ _ = require('lodash')
 express = require("express")
 session = require('./lib/session')
 
+log4js = require('log4js')
+log4js.configure(
+    appenders: [
+        {
+            type: 'console'
+            category: 'log'
+        }
+        {
+            type: 'file'
+            filename: 'express.log'
+            category: 'express'
+        }
+    ]
+)
+
 
 ###
 Main application file
@@ -39,9 +54,11 @@ require("./lib/config/express") app
 # Routing
 require("./lib/routes") app
 
+logger = log4js.getLogger('log')
+
 # Start server
 server.listen config.port, ->
-    console.log "Express server listening on port %d in %s mode", config.port, app.get("env")
+    logger.info "Express server listening on port %d in %s mode", config.port, app.get("env")
     return
 
 

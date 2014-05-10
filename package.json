@@ -12,6 +12,7 @@
     "hiredis": "^0.1.16",
     "jsonwebtoken": "^0.3.0",
     "lodash": "~2.4.1",
+    "log4js": "^0.6.14",
     "machina": "^0.3.6",
     "machina.postal": "^0.4.0",
     "moniker": "^0.1.2",

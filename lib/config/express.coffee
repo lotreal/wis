@@ -1,6 +1,9 @@
 "use strict"
+
 express = require("express")
+log4js = require('log4js')
 path = require("path")
+
 config = require("./config")
 session = require('../session')
 
@@ -30,6 +33,9 @@ module.exports = (app) ->
         app.use express.favicon(path.join(config.root, "public", "favicon.ico"))
         app.use express.static(path.join(config.root, "public"))
         app.set "views", config.root + "/views"
+        # logger = log4js.getLogger('express')
+        # logger.setLevel('ERROR')
+        # app.use log4js.connectLogger(logger, level: 'auto')
         return
 
     app.configure ->
@@ -44,6 +50,11 @@ module.exports = (app) ->
         app.use express.session(store: session.sessionStore, secret: session.secret, key: session.key)
         # Router (only error handlers should come after this)
         app.use app.router
+        app.use express.csrf()
+        app.use (req, res, next)->
+            res.locals.csrftoken = req.csrfToken()
+            next()
+        app.disable 'x-powered-by'
         return
 
 
