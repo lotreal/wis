@@ -1,6 +1,5 @@
 'use strict'
 
-_ = require('lodash')
 postal = require('postal')
 
 Context = require('./context')
@@ -21,11 +20,14 @@ module.exports = (socket) ->
     socket.on 'wis:ready', ->
         channel.publish topic: 'ready', data:socket
 
-    socket.on 'game:speak', _.wrap socket, (socket, msg)->
+    socket.on 'wis:speak', (msg)->
         channel.publish topic:'speak', data:{from:socket, message:msg}
 
     socket.on 'wis:start', ()->
         channel.publish topic: 'start'
+
+
+
 
     setupGame = (conn, socket)->
         # sessionId = socket.handshake.sessionID
@@ -36,7 +38,7 @@ module.exports = (socket) ->
 
 
 
-        socket.on 'game:vote', _.wrap socket, (socket, target, fn)->
+        socket.on 'game:vote', (target, fn)->
             channel.publish topic:'vote', data:{
                 from:socket, target:target, callback:fn
             }

@@ -38,13 +38,14 @@ angular.module('wis.game', ['wis.api'])
                     @setFlag(@me()).flag
 
                 @setBalloon: (uid, message)->
+                    return unless message
                     index = _.findIndex(model.members, uid:uid)
                     model.chats[index] = message
                     # trigger 'focus' let popover show
                     ballon = $('#balloon-'+index)
                     ballon.triggerHandler('focus')
                     hide = ->ballon.triggerHandler('blur')
-                    setTimeoutIfNo(hide, 6000, "hide-ballon-#{uid}")
+                    setTimeoutIfNo(hide, 7000, "hide-ballon-#{uid}")
 
                 @allReady: ->
                     _.every(model.members, (p)->p.isMaster || p.isReady)
@@ -82,7 +83,7 @@ angular.module('wis.game', ['wis.api'])
                             $scope.speak = (evt)->
                                 if evt.keyCode == 13
                                     if $scope.input
-                                        socket.emit 'game:speak', $scope.input
+                                        socket.emit 'wis:speak', $scope.input
                                         console.log 'input - ', $scope.input
                                         $scope.input = ''
 
@@ -112,15 +113,22 @@ angular.module('wis.game', ['wis.api'])
                         load: (data)->
                             _.map data.members, (p)->
                                 Player.setFlag(p)
+
                             model.members = data.members
+
+                            showChat = ->
+                                _.forEach model.members, (p)->
+                                    Player.setBalloon(p.uid, p.message)
+
+                            setTimeout showChat, 300
+
                             @handle('usermod', Player.me())
 
                         action: (data)->
                             if Player.flag() == 'master'
-                                console.log Player.allReady()
-                                # socket.emit 'wis:start', {}
+                                @transition('pending')                                                          # socket.emit 'wis:start', {}
                                 console.log 'start game'
-                                @transition('play')
+
                             else
                                 socket.emit 'wis:ready', model.profile.uid
                                 console.log 'ready'
@@ -131,7 +139,7 @@ angular.module('wis.game', ['wis.api'])
                             console.log "usermod #{data.uid}", data
 
                             find = Player.find(data)
-                            flag = _.merge(find, data)
+                            find = _.merge(find, data)
 
                             if Player.isMe(find)
                                 label = '准备'
@@ -151,6 +159,10 @@ angular.module('wis.game', ['wis.api'])
                             $scope.vote = (idx)->
                                 socket.emit 'game:vote', idx, (res)->
                                     $scope.subtitle = res
+
+                    pending:
+                        _onEnter: ->
+                            $scope.actionAvailable = ->false
 
             )
             return game

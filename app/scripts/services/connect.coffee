@@ -17,7 +17,7 @@ angular.module('wis.connect', [])
                 socket.on 'game:player:update', (data) ->
                     fsm.handle('load', data)
 
-                socket.on 'game:chat', (data)->
+                socket.on 'wis:speak', (data)->
                     fsm.handle('speak', data)
 
                 socket.on 'game:start:count', (data) ->
@@ -35,10 +35,6 @@ angular.module('wis.connect', [])
 
                 socket.on 'game:vote:result', (vote)->
                     $scope.list = vote
-
-                socket.on 'game:speak', (msg)->
-                    console.log msg
-                    $scope.list = msg
 
                 socket.on 'game:over', (data)->
                     $scope.list = data

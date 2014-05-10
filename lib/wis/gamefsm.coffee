@@ -84,7 +84,7 @@ create = (rid)->
                     player = @team.getMember()[i]
                     player.message = data.message
 
-                    @team.broadcast 'all', 'game:chat', {index:i,message:data.message,uid:uid}
+                    @team.broadcast 'all', 'wis:speak', {index:i,message:data.message,uid:uid}
 
                 start: ->
                     done = ->
@@ -104,7 +104,7 @@ create = (rid)->
 
                 speak: (data)->
                     @logger.log(@round, data.from, data.message)
-                    @team.broadcast 'all', 'game:speak', Fmt.list(@logger.show(@round))
+                    @team.broadcast 'all', 'wis:speak', Fmt.list(@logger.show(@round))
 
                     # if all player speaked
                     if @logger.fullpage(@round)

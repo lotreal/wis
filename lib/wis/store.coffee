@@ -23,6 +23,7 @@ class Store
                 uid: p.getId()
                 name: p.profile.name
                 slogan: p.profile.slogan
+                message: p.message
 
                 isMaster: i == 0
                 isReady: p.ready
