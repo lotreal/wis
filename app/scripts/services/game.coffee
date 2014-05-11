@@ -118,7 +118,7 @@ angular.module('wis.game', ['wis.api'])
                                 return true if Player.flag() != 'master'
                                 return Player.allReady()
 
-                            $scope.$apply()
+                            $scope.$apply() unless $scope.$$phase
                             $('#wis-input').focus()
                             console.log 'enter waitroom'
 
