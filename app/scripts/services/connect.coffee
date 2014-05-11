@@ -14,21 +14,25 @@ angular.module('wis.connect', [])
             room: (socket, fsm, model, $scope)->
                 model = $scope.model
 
-                socket.on 'game:player:update', (data) ->
+                socket.on 'wis:reflash', (data) ->
                     fsm.handle('load', data)
 
                 socket.on 'wis:speak', (data)->
                     fsm.handle('speak', data)
 
-                socket.on 'game:start:count', (data) ->
-                    $scope.subtitle = sprintf(data.message, data.count)
+                socket.on 'wis:start:forecast', (data)->
+                    fsm.handle('start.forecast', data)
 
-                socket.on 'game:deal', (game)->
+                socket.on 'wis:start:countdown', (data) ->
+                    fsm.handle('start.countdown', data)
+
+                socket.on 'wis:start', (game) ->
+                    console.log game:game
                     $scope.board = game.word
+                    fsm.handle('start', game)
 
-                socket.on 'game:play:begin', (round)->
-                    $scope.subtitle = sprintf('康熙字典（第 %d 版）', round)
-                    $scope.list = []
+                socket.on 'wis:start:round', (round)->
+                    fsm.handle('start.round', round)
 
                 socket.on 'game:vote:begin', ->
                     $scope.subtitle = '请点选投票'

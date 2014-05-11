@@ -67,6 +67,14 @@ angular.module('wis.game', ['wis.api'])
                         (err)->
                     )
 
+                pending: (timeout)->
+                    state = @state
+                    back = _.bind(
+                        ->@transition(state),
+                        @)
+                    @exitPending = setTimeout back, timeout
+                    @transition('pending')
+
                 states:
                     uninitialized:
                         initialized: (data)->
@@ -94,6 +102,7 @@ angular.module('wis.game', ['wis.api'])
 
                     ready:
                         _onEnter: ->
+                            model.state = @state
                             model.round = 0
 
                             $scope.getBoard = ->
@@ -104,9 +113,12 @@ angular.module('wis.game', ['wis.api'])
                                 return key == 'ready'
 
                             $scope.actionAvailable = ->
+                                console.log flag:Player.flag(), ready:Player.allReady(), state: model.state
+                                return false unless model.state == 'ready'
                                 return true if Player.flag() != 'master'
                                 return Player.allReady()
 
+                            $scope.$apply()
                             $('#wis-input').focus()
                             console.log 'enter waitroom'
 
@@ -126,7 +138,8 @@ angular.module('wis.game', ['wis.api'])
 
                         action: (data)->
                             if Player.flag() == 'master'
-                                @transition('pending')                                                          # socket.emit 'wis:start', {}
+                                @pending(3000)
+                                socket.emit 'wis:start', {}
                                 console.log 'start game'
 
                             else
@@ -151,8 +164,12 @@ angular.module('wis.game', ['wis.api'])
                             console.log "chat - #{chat.uid}: #{chat.message}"
                             Player.setBalloon(chat.uid, chat.message)
 
+                        start: ->
+
                     play:
                         _onEnter: ->
+                            model.state = @state
+
                             $scope.isVisible = (key)->
                                 return key == 'play'
 
@@ -160,9 +177,26 @@ angular.module('wis.game', ['wis.api'])
                                 socket.emit 'game:vote', idx, (res)->
                                     $scope.subtitle = res
 
+                        'start.round': (round)->
+                            console.log round: round
+                            $scope.getBoard = ->
+                                sprintf('康熙字典（第 %d 版）', round)
+
                     pending:
                         _onEnter: ->
-                            $scope.actionAvailable = ->false
+                            model.state = @state
+
+                        'start.forecast': ->
+                            clearTimeout @exitPending
+
+                        'start.countdown': (data)->
+                            $scope.getTips = ->
+                                return sprintf(data.message, data.count)
+
+                        start: (data)->
+                            $scope.getTips = -> data.word
+                            @transition('play')
+
 
             )
             return game

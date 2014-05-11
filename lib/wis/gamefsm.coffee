@@ -52,10 +52,14 @@ create = (rid)->
                     @logger = new Logger(@team)
                     console.log 'enter ready'
 
+                snapshot: (callback)->
+                    players = @logger.loadWaitroom()
+                    callback(null, players)
+
                 update: ->
                     console.log team: @team.getMember()
                     players = @logger.loadWaitroom()
-                    @team.broadcast 'all', 'game:player:update', players
+                    @team.broadcast 'all', 'wis:reflash', players
 
                 ready: (from)->
                     uid = conn.findUser(from.id)
@@ -87,20 +91,26 @@ create = (rid)->
                     @team.broadcast 'all', 'wis:speak', {index:i,message:data.message,uid:uid}
 
                 start: ->
+                    @team.broadcast 'all', 'wis:start:forecast'
                     done = ->
                         @team.beforePlay()
                         words = if config.env == 'development' then ['CIVIL','SPY'] else word()
-                        @team.broadcast 'civil', 'game:deal', word: words[0]
-                        @team.broadcast 'spy', 'game:deal', word: words[1]
+                        @team.broadcast 'civil', 'wis:start', word: words[0]
+                        @team.broadcast 'spy', 'wis:start', word: words[1]
                         @word = civil:words[0], spy:words[1]
                         @transition('play')
 
-                    countdown(@team, 'game:start:count', 2,
+                    countdown(@team, 'wis:start:countdown', 6,
                         '尚书大人正在出题(%d)', _.bind(done, @))
 
             play:
                 _onEnter: ->
-                    @team.broadcast 'all', 'game:play:begin', ++@round
+                    @team.broadcast 'all', 'wis:start:round', ++@round
+
+                snapshot: (callback)->
+                    # players = @logger.loadWaitroom()
+                    callback(null, playsnapshot: 'todo')
+
 
                 speak: (data)->
                     @logger.log(@round, data.from, data.message)
@@ -161,9 +171,9 @@ create = (rid)->
         channel : "wis.#{rid}"
         topic   : 'reflash'
         callback: (callback, envelope)->
-            data = game.logger.loadWaitroom()
-            data.state = game.state
-            callback(data)
+            game.handle 'snapshot', (err, data)->
+                data.state = game.state
+                callback(data)
     )
 
     return game
