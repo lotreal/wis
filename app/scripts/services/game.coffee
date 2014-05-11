@@ -78,7 +78,7 @@ angular.module('wis.game', ['wis.api'])
                 states:
                     uninitialized:
                         initialized: (data)->
-                            console.log load: data
+                            console.log fInit: data
                             self = @
                             model.room = data.room
                             model.profile = data.profile
@@ -124,6 +124,7 @@ angular.module('wis.game', ['wis.api'])
                             console.log 'enter waitroom'
 
                         load: (data)->
+                            console.log fReady: data
                             _.map data.members, (p)->
                                 Player.setFlag(p)
 
@@ -178,10 +179,22 @@ angular.module('wis.game', ['wis.api'])
                                 @emit 'game:vote', idx, (res)->
                                     $scope.subtitle = res
 
+                        load: (data)->
+                            model.word = data.game.word
+                            console.log fPlay: data
+
+                            unless data.game.round == undefined
+                                @handle('start.round', data.game.round)
+
                         'start.round': (round)->
                             console.log round: round
                             $scope.getBoard = ->
-                                sprintf('康熙字典（第 %d 版）', round)
+                                sprintf('第 %d 版', round)
+
+                        speak: (chat)->
+                            console.log "chat - #{chat.uid}: #{chat.message}"
+                            console.log chat
+
 
                     pending:
                         _onEnter: ->
@@ -191,16 +204,15 @@ angular.module('wis.game', ['wis.api'])
                             clearTimeout @exitPending
 
                         'start.countdown': (data)->
-                            $scope.getTips = ->
-                                return sprintf(data.message, data.count)
+                            model.actionLabel = sprintf(data.message, data.count)
 
                         start: (data)->
-                            $scope.getTips = -> data.word
-                            console.log game:data
-                            # $scope.board = data.word
+                            load =
+                                game:
+                                    word:data.word
 
                             @transition('play')
-
+                            @handle('load', load)
 
             )
             return game

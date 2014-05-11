@@ -15,9 +15,10 @@ exports.getRoom = (req, res) ->
     passport.verify token, (err, decoded)->
         return res.json [err] if err
 
+        uid = decoded.uid
         async.waterfall [
             (done)->
-                player = new Player(decoded.uid)
+                player = new Player(uid)
                 player.fillout().then (filled)->
                     data =
                         room:
@@ -27,8 +28,11 @@ exports.getRoom = (req, res) ->
                     done(null, data)
             (data, done)->
                 channel = postal.channel("wis.#{rid}")
-                channel.publish topic: 'reflash', data:(snapshoot)->
-                    done(null,  _.merge(data, snapshoot))
+                channel.publish topic: 'reflash', data:{
+                    uid: uid
+                    callback: (snapshoot)->
+                        done(null,  _.merge(data, snapshoot))
+                }
             (data)->
                 res.json [null, data]
         ]

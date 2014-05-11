@@ -502,7 +502,7 @@ module.exports = (grunt) ->
             grunt.log.writeln "Done waiting!"
             done()
             return
-        ), 500
+        ), 1000
         return
 
     grunt.registerTask "express-keepalive", "Keep grunt running", ->

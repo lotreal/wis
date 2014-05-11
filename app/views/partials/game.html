@@ -34,8 +34,8 @@
                  id="wis-input"
                  class="form-control"
                  placeholder="{{getTips()}}"
-                 ng-keydown="speak($event);"
-                 ng-model="input"
+                 x-ng-keydown="speak($event);"
+                 x-ng-model="input"
                  >
         </div>
       </div>
@@ -104,7 +104,7 @@
         <div class="panel-heading">
           <strong>
             <span class="glyphicon glyphicon-home" ng-click="debug()"></span>
-            {{subtitle}}
+            【{{model.word}}】 {{model.room.name}}（{{getBoard()}}）
           </strong>
         </div>
 
@@ -127,7 +127,7 @@
             </span>
           </li>
 
-          <li>
+          <li x-ng-hide="true">
             <section class="row text-center">
               <button class="btn btn-w-md btn-gap-v btn-line-primary" ng-click="start()">
                 开始

@@ -50,6 +50,9 @@ module.exports = (->
             return 'spy' if _.contains(@getSpy(), player)
             return 'unknown'
 
+        find: (uid)->
+            return _.find(@member, (p)->p.getId() == uid)
+
         add: (player)->
             unless _.find(@member, (p)->p.getId() == player.getId())
                 @member.push(player)

@@ -30,10 +30,24 @@ countdown = (team, evt, count, message, done)->
 
 
 create = (rid)->
+
     game = new machina.Fsm(
         initialState: 'uninitialized'
 
         namespace: "wis.#{rid}"
+
+        generateWisWord: ->
+            words = if config.env == 'development' then ['CIVIL','SPY'] else word()
+            @wisWord = civil:words[0], spy:words[1]
+            return
+
+        getWisWord: (role)->
+            return @wisWord[role]
+
+        getPlayerFromSocket: (socket)->
+            uid = conn.findUser(socket.id)
+            player = _.find(@team.getMember(), (p)->p.getId() == uid)
+            return player
 
         states:
             uninitialized:
@@ -52,7 +66,7 @@ create = (rid)->
                     @logger = new Logger(@team)
                     console.log 'enter ready'
 
-                snapshot: (callback)->
+                snapshot: (uid, callback)->
                     players = @logger.loadWaitroom()
                     callback(null, players)
 
@@ -94,10 +108,9 @@ create = (rid)->
                     @team.broadcast 'all', 'wis:start:forecast'
                     done = ->
                         @team.beforePlay()
-                        words = if config.env == 'development' then ['CIVIL','SPY'] else word()
-                        @team.broadcast 'civil', 'wis:start', word: words[0]
-                        @team.broadcast 'spy', 'wis:start', word: words[1]
-                        @word = civil:words[0], spy:words[1]
+                        @generateWisWord()
+                        @team.broadcast 'civil', 'wis:start', word: @getWisWord('civil')
+                        @team.broadcast 'spy', 'wis:start', word: @getWisWord('spy')
                         @transition('play')
 
                     countdown(@team, 'wis:start:countdown', 6,
@@ -107,14 +120,24 @@ create = (rid)->
                 _onEnter: ->
                     @team.broadcast 'all', 'wis:start:round', ++@round
 
-                snapshot: (callback)->
-                    # players = @logger.loadWaitroom()
-                    callback(null, playsnapshot: 'todo')
+                snapshot: (uid, callback)->
+                    player = @team.find(uid)
+                    role = @team.getRole(player)
 
+                    data = @logger.loadWaitroom()
+                    data.game =
+                        word: @getWisWord(role)
+                        round: @round
+                    callback(null, data)
 
                 speak: (data)->
+                    console.log "#{data.from.id}: #{data.message}"
+                    uid = conn.findUser(data.from.id)
+                    i = _.findIndex(@team.getMember(), uid:uid)
+                    player = @team.getMember()[i]
+
                     @logger.log(@round, data.from, data.message)
-                    @team.broadcast 'all', 'wis:speak', Fmt.list(@logger.show(@round))
+                    @team.broadcast 'all', 'wis:speak', @logger.show(@round)
 
                     # if all player speaked
                     if @logger.fullpage(@round)
@@ -170,10 +193,10 @@ create = (rid)->
     postal.subscribe(
         channel : "wis.#{rid}"
         topic   : 'reflash'
-        callback: (callback, envelope)->
-            game.handle 'snapshot', (err, data)->
-                data.state = game.state
-                callback(data)
+        callback: (data, envelope)->
+            game.handle 'snapshot', data.uid, (err, res)->
+                res.state = game.state
+                data.callback(res)
     )
 
     return game
