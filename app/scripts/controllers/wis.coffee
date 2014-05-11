@@ -14,9 +14,9 @@ angular.module('wis.app', ['wis.game', 'wis.connect', 'wis.api'])
         socket = connect.create($routeParams.roomId)
         socket.on 'connect', ->
             console.log 'wis connected.'
-            game = game($scope, socket)
+            game = game($scope)
             game.sync($routeParams.roomId, socket)
-            connect.room(socket, game, model, $scope)
+            connect.setup(socket, game)
 
         return
 ])

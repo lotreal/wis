@@ -10,7 +10,7 @@ angular.module('wis.game', ['wis.api'])
             clearTimeout(timeoutHandler[key])
             timeoutHandler[key] = setTimeout(fn, timeout)
 
-        fsm = ($scope, socket) ->
+        fsm = ($scope) ->
             model = $scope.model
 
             class Player
@@ -79,6 +79,7 @@ angular.module('wis.game', ['wis.api'])
                     uninitialized:
                         initialized: (data)->
                             console.log load: data
+                            self = @
                             model.room = data.room
                             model.profile = data.profile
 
@@ -91,7 +92,7 @@ angular.module('wis.game', ['wis.api'])
                             $scope.speak = (evt)->
                                 if evt.keyCode == 13
                                     if $scope.input
-                                        socket.emit 'wis:speak', $scope.input
+                                        self.emit 'wis:speak', $scope.input
                                         console.log 'input - ', $scope.input
                                         $scope.input = ''
 
@@ -139,11 +140,11 @@ angular.module('wis.game', ['wis.api'])
                         action: (data)->
                             if Player.flag() == 'master'
                                 @pending(3000)
-                                socket.emit 'wis:start', {}
+                                @emit 'wis:start'
                                 console.log 'start game'
 
                             else
-                                socket.emit 'wis:ready', model.profile.uid
+                                @emit 'wis:ready', model.profile.uid
                                 console.log 'ready'
 
                         usermod: (data)->
@@ -174,7 +175,7 @@ angular.module('wis.game', ['wis.api'])
                                 return key == 'play'
 
                             $scope.vote = (idx)->
-                                socket.emit 'game:vote', idx, (res)->
+                                @emit 'game:vote', idx, (res)->
                                     $scope.subtitle = res
 
                         'start.round': (round)->
@@ -195,6 +196,9 @@ angular.module('wis.game', ['wis.api'])
 
                         start: (data)->
                             $scope.getTips = -> data.word
+                            console.log game:data
+                            # $scope.board = data.word
+
                             @transition('play')
 
 
