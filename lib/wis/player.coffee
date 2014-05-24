@@ -9,10 +9,6 @@ class Player
 
     getId: ->@uid
 
-    toggleReady: ->
-        @ready = !@ready
-        return @ready
-
     getProfile: (done)->
         self = @
         User.load @getId(), (err, profile)->
@@ -24,16 +20,9 @@ class Player
             self.profile = profile
             return done(err, profile)
 
-    # TODO cache
-    fillout: ->
-        self = @
-        return new Promise (resolve, reject)->
-            User.load self.getId(), (err, profile)->
-                # return done(err) if err
-                delete profile.uid
-                delete profile.password
+    toggleReady: ->
+        @ready = !@ready
+        return @ready
 
-                self.profile = profile
-                resolve self
 
 module.exports = Player
