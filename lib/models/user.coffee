@@ -98,13 +98,6 @@ class User
                     callback(err, profile)
             ], done
 
-    @loadProfile: (uid, done)->
-        User.load uid, (err, profile)->
-            return done(err) if err
-            delete profile.uid
-            delete profile.password
-            return done(err, profile)
-
     @save: (data, done)->
         uid = data.uid
         password = data.password

@@ -13,11 +13,26 @@ class Player
         @ready = !@ready
         return @ready
 
+    getProfile: (done)->
+        self = @
+        User.load @getId(), (err, profile)->
+            return done(err) if err
+
+            delete profile.uid
+            delete profile.password
+
+            self.profile = profile
+            return done(err, profile)
+
     # TODO cache
     fillout: ->
         self = @
         return new Promise (resolve, reject)->
-            User.loadProfile self.getId(), (err, profile)->
+            User.load self.getId(), (err, profile)->
+                # return done(err) if err
+                delete profile.uid
+                delete profile.password
+
                 self.profile = profile
                 resolve self
 

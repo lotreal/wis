@@ -29,10 +29,10 @@ angular.module('wis.game', ['wis.api'])
                     return _.find model.members, (p)->p.uid == player.uid
 
                 @isMe: (player)->
-                    return player.uid == model.profile.uid
+                    return player.uid == model.uid
 
                 @me: ->
-                    @find(model.profile)
+                    @find(uid:model.uid)
 
                 @flag: ->
                     @setFlag(@me()).flag
@@ -80,6 +80,7 @@ angular.module('wis.game', ['wis.api'])
                         initialized: (data)->
                             console.log fInit: data
                             self = @
+                            model.uid = data.uid
                             model.room = data.room
                             model.profile = data.profile
 
@@ -145,7 +146,7 @@ angular.module('wis.game', ['wis.api'])
                                 console.log 'start game'
 
                             else
-                                @emit 'wis:ready', model.profile.uid
+                                @emit 'wis:ready', model.uid
                                 console.log 'ready'
 
                         usermod: (data)->

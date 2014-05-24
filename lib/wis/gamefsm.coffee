@@ -36,7 +36,7 @@ create = (rid)->
 
         record: (fsm, data)->
             console.log fsm:fsm, data:data
-            console.log fsm.round
+            console.log fsm.round, data.getId()
 
         generateWisWord: ->
             words = if config.env == 'development' then ['CIVIL','SPY'] else word()
@@ -181,9 +181,8 @@ create = (rid)->
         topic   : "in.#{rid}"
         callback: (uid, envelope)->
             player = new Player(uid)
-            player.fillout().then(->
+            player.getProfile ->
                 game.handle('in', player)
-            )
     )
 
     postal.subscribe(

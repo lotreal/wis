@@ -13,21 +13,23 @@ exports.getRoom = (req, res) ->
     rid = req.body.rid
     uid = req.session.passport.user
     async.waterfall [
-        (done)->
+        (callback)->
             player = new Player(uid)
-            player.fillout().then (filled)->
-                data =
-                    room:
-                        name: '康熙字典'
-                        team: Fmt.team()
-                    profile: filled
-                done(null, data)
-        (data, done)->
+            player.getProfile callback
+        (profile, callback)->
+            data =
+                uid: uid
+                room:
+                    name: '康熙字典'
+                    team: Fmt.team()
+                profile: profile
+            return callback(null, data)
+        (data, callback)->
             channel = postal.channel("wis.#{rid}")
             channel.publish topic: 'reflash', data:{
                 uid: uid
                 callback: (snapshoot)->
-                    done(null,  _.merge(data, snapshoot))
+                    callback(null,  _.merge(data, snapshoot))
             }
         (data)->
             res.json [null, data]
