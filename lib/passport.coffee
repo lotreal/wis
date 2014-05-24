@@ -7,7 +7,7 @@ cookie = require('express/node_modules/cookie')
 session = require('./session')
 _ = require('lodash')
 Promise = require('bluebird')
-Model = require('./model')
+
 signature = require("cookie-signature")
 
 secret = 'jwt secret'
@@ -56,17 +56,17 @@ exports.socket = (io)->
             (err)->callback(err, false)
         )
 
-exports.login = (name)->
-    return new Promise (resolve, reject)->
-        Model.user.find(name)
-        .then(
-            (user)->
-                console.log login: user
-                token = sign(uid: user.id)
-                resolve token
-            (err)->
-                reject 'Incorrect username or password.'
-        )
+# exports.login = (name)->
+#     return new Promise (resolve, reject)->
+#         Model.user.find(name)
+#         .then(
+#             (user)->
+#                 console.log login: user
+#                 token = sign(uid: user.id)
+#                 resolve token
+#             (err)->
+#                 reject 'Incorrect username or password.'
+#         )
 
 getToken = (cookies)->
     return new Promise((resolve, reject)->

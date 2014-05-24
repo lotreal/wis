@@ -1,7 +1,7 @@
 'use strict'
 
 Promise = require('bluebird')
-User = require('../model').user
+User = require('../models/user').User
 
 class Player
     constructor: (@uid) ->
@@ -17,8 +17,8 @@ class Player
     fillout: ->
         self = @
         return new Promise (resolve, reject)->
-            User.id(self.getId()).then (user)->
-                self.profile = user.profile
+            User.loadProfile self.getId(), (err, profile)->
+                self.profile = profile
                 resolve self
 
 module.exports = Player

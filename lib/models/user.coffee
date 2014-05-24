@@ -4,7 +4,9 @@ _ = require('lodash')
 Promise = require('bluebird')
 bcrypt = require('bcrypt')
 
-redis = require('redis').createClient()
+config = require('../config/config')
+redis = config.redis
+# redis = require('redis').createClient()
 async = require('async')
 util = require('util')
 jf = require('jsonfile')
@@ -95,6 +97,13 @@ class User
                     profile.password = hash
                     callback(err, profile)
             ], done
+
+    @loadProfile: (uid, done)->
+        User.load uid, (err, profile)->
+            return done(err) if err
+            delete profile.uid
+            delete profile.password
+            return done(err, profile)
 
     @save: (data, done)->
         uid = data.uid

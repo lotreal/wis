@@ -25,6 +25,5 @@ exports.partials = (req, res) ->
 Send our single page app
 ###
 exports.index = (req, res) ->
-    console.log req.isAuthenticated()
     res.render "index"
     return

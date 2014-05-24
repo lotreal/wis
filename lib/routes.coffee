@@ -5,7 +5,7 @@ passport = require('passport')
 api = require('./controllers/api')
 index = require('./controllers')
 # passport = require('./passport')
-Model = require('./model')
+
 Player = require('./wis/player')
 
 ensureAuthenticated = (req, res, next)->

@@ -1,8 +1,6 @@
 'use strict'
 config = require('../config/config')
 context = require('../context')
-Model = require('../model')
-User = Model.user
 Team = require('./team')
 io = context.get('io')
 Promise = require('bluebird')

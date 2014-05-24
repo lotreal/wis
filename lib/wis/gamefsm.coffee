@@ -7,8 +7,6 @@ require('machina.postal')(machina, postal)
 
 config = require('../config/config')
 context = require('../context')
-Model = require('../model')
-User = Model.user
 Player = require('./player')
 Team = require('./team')
 Promise = require('bluebird')
