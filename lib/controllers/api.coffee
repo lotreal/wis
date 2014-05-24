@@ -11,29 +11,24 @@ Fmt = require('../wis/sn')
 
 exports.getRoom = (req, res) ->
     rid = req.body.rid
-    token = req.session.token
-    passport.verify token, (err, decoded)->
-        return res.json [err] if err
-
-        uid = decoded.uid
-        async.waterfall [
-            (done)->
-                player = new Player(uid)
-                player.fillout().then (filled)->
-                    data =
-                        room:
-                            name: '康熙字典'
-                            team: Fmt.team()
-                        profile: filled
-                    done(null, data)
-            (data, done)->
-                channel = postal.channel("wis.#{rid}")
-                channel.publish topic: 'reflash', data:{
-                    uid: uid
-                    callback: (snapshoot)->
-                        done(null,  _.merge(data, snapshoot))
-                }
-            (data)->
-                res.json [null, data]
-        ]
-    return
+    uid = req.session.passport.user
+    async.waterfall [
+        (done)->
+            player = new Player(uid)
+            player.fillout().then (filled)->
+                data =
+                    room:
+                        name: '康熙字典'
+                        team: Fmt.team()
+                    profile: filled
+                done(null, data)
+        (data, done)->
+            channel = postal.channel("wis.#{rid}")
+            channel.publish topic: 'reflash', data:{
+                uid: uid
+                callback: (snapshoot)->
+                    done(null,  _.merge(data, snapshoot))
+            }
+        (data)->
+            res.json [null, data]
+    ]

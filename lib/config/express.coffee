@@ -3,6 +3,7 @@
 express = require("express")
 log4js = require('log4js')
 path = require("path")
+passport = require('passport')
 
 config = require("./config")
 session = require('../session')
@@ -48,6 +49,8 @@ module.exports = (app) ->
         app.use session.cookieParser
         app.use express.bodyParser()
         app.use express.session(store: session.sessionStore, secret: session.secret, key: session.key)
+        app.use passport.initialize()
+        app.use passport.session()
         # Router (only error handlers should come after this)
         app.use app.router
         app.use express.csrf()

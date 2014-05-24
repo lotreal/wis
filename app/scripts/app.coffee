@@ -37,5 +37,5 @@ app.config [
 app.run [
     '$rootScope', '$location', '$cookies'
     ($rootScope, $location, $cookies)->
-        $location.path '/signin' unless $cookies['wis:uid']
+        # $location.path '/signin' unless $cookies['wis:uid']
 ]

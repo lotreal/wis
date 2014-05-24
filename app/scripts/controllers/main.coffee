@@ -5,7 +5,10 @@ angular.module('WisApp').controller 'MainCtrl', [
         $scope.username = ''
 
         $scope.login = ->
-            $http.post('/login', {name: $scope.username})
+            $http.post('/login', {
+                username: $scope.username
+                password: $scope.password
+            })
             .success((res)->
                 [err, token] = res
 
@@ -18,6 +21,19 @@ angular.module('WisApp').controller 'MainCtrl', [
             )
             .error((err)->
                 console.log err
+            )
+
+        $scope.logout = ->
+            $http.get('/logout')
+            .success((res)->
+                [err, signin] = res
+
+                if err
+                    console.log err
+                    alert(err)
+                    return
+
+                $location.path signin
             )
 
         $scope.isSpecificPage = ->

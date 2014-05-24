@@ -9,4 +9,6 @@ heroku
 dist
 server.js
 lib/**/*.js
+test/**/*.js
 rule-*.txt
+dump.json

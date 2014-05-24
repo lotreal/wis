@@ -2,6 +2,10 @@
 _ = require('lodash')
 express = require("express")
 session = require('./lib/session')
+passport = require('passport')
+LocalStrategy = require('passport-local').Strategy
+
+User = require('./lib/models/user').User
 
 log4js = require('log4js')
 log4js.configure(
@@ -50,6 +54,21 @@ io.sockets.on "connection", socket
 
 # Express settings
 require("./lib/config/express") app
+passport.use new LocalStrategy((username, password, done)->
+    console.log username
+    User.login username, password, (err, user)->
+        if err == 'Invalid user or password.'
+            return done(null, false, message: err)
+        return done(err) if err
+        return done(null, user)
+)
+passport.serializeUser (user, done)->
+    done(null, user.uid)
+
+passport.deserializeUser (uid, done)->
+    User.load uid, (err, profile)->
+        return done(err) if err
+        return done(null, profile)
 
 # Routing
 require("./lib/routes") app
