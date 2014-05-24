@@ -5,10 +5,40 @@ Fmt = require('./sn')
 Vote = require('./vote')
 
 class Store
-    constructor: (@team) ->
+    constructor: (@fsm) ->
+        @team = fsm.team
+
+        @speaks = []
+
         @logs = {}
         @votes = []
         @full = {}
+
+    'play.speak': (data)->
+        round = @fsm.round
+
+        @speaks.push(
+            round: round
+            player: data.player
+            message: data.message
+        )
+
+        next = false
+        list = []
+        for player, i in @team.getLeft()
+            find = _.find @speaks, {round:round, player:player}
+            if find
+                if next
+                    player.message = '*'
+                else
+                    player.message = find.message
+            else
+                next = player
+            list.push(player)
+
+        ret = list:list, next:next
+        console.log ret
+        return ret
 
     log: (page, from, message)->
         page = "page-#{page}"

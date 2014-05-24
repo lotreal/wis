@@ -35,8 +35,8 @@ create = (rid)->
         namespace: "wis.#{rid}"
 
         record: (fsm, data)->
-            console.log fsm:fsm, data:data
-            console.log fsm.round, data.getId()
+            method = @logger[@_currentAction]
+            _.bind(method, @logger, data)() if method
 
         generateWisWord: ->
             words = if config.env == 'development' then ['CIVIL','SPY'] else word()
@@ -55,6 +55,7 @@ create = (rid)->
             uninitialized:
                 initialized: ->
                     @team = context.one('team:'+rid, ()->new Team(rid))
+                    @logger = new Logger(@)
 
                     console.log 'Initialized'
                     @transition 'ready'
@@ -65,7 +66,6 @@ create = (rid)->
             ready:
                 _onEnter: ->
                     @round = 0
-                    @logger = new Logger(@team)
                     console.log 'enter ready'
 
                 snapshot: (uid, callback)->
@@ -115,7 +115,7 @@ create = (rid)->
                         @team.broadcast 'spy', 'wis:start', word: @getWisWord('spy')
                         @transition('play')
 
-                    countdown(@team, 'wis:start:countdown', 6,
+                    countdown(@team, 'wis:start:countdown', 1,
                         '尚书大人正在出题(%d)', _.bind(done, @))
 
             play:
@@ -133,12 +133,8 @@ create = (rid)->
                     callback(null, data)
 
                 speak: (data)->
-                    uid = conn.findUser(data.from)
-                    i = _.findIndex(@team.getMember(), uid:uid)
-                    player = @team.getMember()[i]
-
-                    player = @getPlayerFromSocket(data.from)
-                    @record @, player
+                    player = data.player = @getPlayerFromSocket(data.from)
+                    @record @, data
 
                     @logger.log(@round, data.from, data.message)
                     @team.broadcast 'all', 'wis:speak', @logger.show(@round)
@@ -202,12 +198,12 @@ create = (rid)->
                 data.callback(res)
     )
 
-    postal.subscribe(
-        channel : "wis.#{rid}"
-        topic   : '*'
-        callback: (data, envelope)->
-            console.log M:data, E:envelope
-    )
+    # postal.subscribe(
+    #     channel : "wis.#{rid}"
+    #     topic   : '*'
+    #     callback: (data, envelope)->
+    #         console.log M:data, E:envelope, G:game
+    # )
 
     return game
 
