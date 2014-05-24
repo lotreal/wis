@@ -31,7 +31,7 @@ module.exports = (socket) ->
 
     setupGame = (conn, socket)->
         # sessionId = socket.handshake.sessionID
-        uid = connect.findUser(socket.id)
+        uid = connect.findUser(socket)
 
         socket.on 'game:debug', ()->
             # game.debug()

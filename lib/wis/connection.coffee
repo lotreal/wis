@@ -27,8 +27,8 @@ findSockets = (uid)->
     return sockets
 
 # sockets -> uid
-findUser = (socketId)->
-    return connectionPool[socketId] || null
+findUser = (socket)->
+    return connectionPool[socket.id] || null
 
 # sockets -> roomId
 findRoom = (socketId)->

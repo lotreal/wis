@@ -34,6 +34,10 @@ create = (rid)->
 
         namespace: "wis.#{rid}"
 
+        record: (fsm, data)->
+            console.log fsm:fsm, data:data
+            console.log fsm.round
+
         generateWisWord: ->
             words = if config.env == 'development' then ['CIVIL','SPY'] else word()
             @wisWord = civil:words[0], spy:words[1]
@@ -43,7 +47,7 @@ create = (rid)->
             return @wisWord[role]
 
         getPlayerFromSocket: (socket)->
-            uid = conn.findUser(socket.id)
+            uid = conn.findUser(socket)
             player = _.find(@team.getMember(), (p)->p.getId() == uid)
             return player
 
@@ -74,7 +78,7 @@ create = (rid)->
                     @team.broadcast 'all', 'wis:reflash', players
 
                 ready: (from)->
-                    uid = conn.findUser(from.id)
+                    uid = conn.findUser(from)
                     player = _.find(@team.getMember(), (p)->p.getId() == uid)
                     index = _.findIndex(@team.getMember, (p)->p.getId() == uid)
                     mod =
@@ -95,7 +99,7 @@ create = (rid)->
 
                 speak: (data)->
                     console.log "#{data.from.id}: #{data.message}"
-                    uid = conn.findUser(data.from.id)
+                    uid = conn.findUser(data.from)
                     i = _.findIndex(@team.getMember(), uid:uid)
                     player = @team.getMember()[i]
                     player.message = data.message
@@ -129,10 +133,12 @@ create = (rid)->
                     callback(null, data)
 
                 speak: (data)->
-                    console.log "#{data.from.id}: #{data.message}"
-                    uid = conn.findUser(data.from.id)
+                    uid = conn.findUser(data.from)
                     i = _.findIndex(@team.getMember(), uid:uid)
                     player = @team.getMember()[i]
+
+                    player = @getPlayerFromSocket(data.from)
+                    @record @, player
 
                     @logger.log(@round, data.from, data.message)
                     @team.broadcast 'all', 'wis:speak', @logger.show(@round)
@@ -195,6 +201,13 @@ create = (rid)->
             game.handle 'snapshot', data.uid, (err, res)->
                 res.state = game.state
                 data.callback(res)
+    )
+
+    postal.subscribe(
+        channel : "wis.#{rid}"
+        topic   : '*'
+        callback: (data, envelope)->
+            console.log M:data, E:envelope
     )
 
     return game
