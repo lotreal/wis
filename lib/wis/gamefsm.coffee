@@ -11,7 +11,7 @@ Player = require('./player')
 Team = require('./team')
 Promise = require('bluebird')
 Fmt = require('./sn')
-word = require('./word')
+
 Logger = require('./store')
 conn = require('./connection')
 util = require('../util')
@@ -35,16 +35,8 @@ create = (rid)->
         namespace: "wis.#{rid}"
 
         record: (fsm, data)->
-            method = @logger[@_currentAction]
-            _.bind(method, @logger, data)() if method
-
-        generateWisWord: ->
-            words = if config.env == 'development' then ['CIVIL','SPY'] else word()
-            @wisWord = civil:words[0], spy:words[1]
-            return
-
-        getWisWord: (role)->
-            return @wisWord[role]
+            method = @GM[@_currentAction]
+            _.bind(method, @GM, data)() if method
 
         getPlayerFromSocket: (socket)->
             uid = conn.findUser(socket)
@@ -55,7 +47,7 @@ create = (rid)->
             uninitialized:
                 initialized: ->
                     @team = context.one('team:'+rid, ()->new Team(rid))
-                    @logger = new Logger(@)
+                    @GM = new Logger(@)
 
                     console.log 'Initialized'
                     @transition 'ready'
@@ -69,12 +61,12 @@ create = (rid)->
                     console.log 'enter ready'
 
                 snapshot: (uid, callback)->
-                    players = @logger.loadWaitroom()
+                    players = @GM.loadWaitroom()
                     callback(null, players)
 
                 update: ->
                     console.log team: @team.getMember()
-                    players = @logger.loadWaitroom()
+                    players = @GM.loadWaitroom()
                     @team.broadcast 'all', 'wis:reflash', players
 
                 ready: (from)->
@@ -108,11 +100,16 @@ create = (rid)->
 
                 start: ->
                     @team.broadcast 'all', 'wis:start:forecast'
+
+                    # 发牌
+                    deal = (role)->
+                        console.log role:@GM.getScene(role, @round)
+                        @team.broadcast role, 'wis:start',
+                            @GM.getScene(role, @round)
+
                     done = ->
-                        @team.beforePlay()
-                        @generateWisWord()
-                        @team.broadcast 'civil', 'wis:start', word: @getWisWord('civil')
-                        @team.broadcast 'spy', 'wis:start', word: @getWisWord('spy')
+                        @GM.start()
+                        _.forEach @team.roles, _.bind(deal, @)
                         @transition('play')
 
                     countdown(@team, 'wis:start:countdown', 1,
@@ -126,24 +123,20 @@ create = (rid)->
                     player = @team.find(uid)
                     role = @team.getRole(player)
 
-                    data = @logger.loadWaitroom()
-                    data.game =
-                        word: @getWisWord(role)
-                        round: @round
+                    data = @GM.getScene(role, @round)
                     callback(null, data)
 
                 speak: (data)->
                     player = data.player = @getPlayerFromSocket(data.from)
-                    @record @, data
+                    scene = @record @, data
 
-                    @logger.log(@round, data.from, data.message)
-                    @team.broadcast 'all', 'wis:speak', @logger.show(@round)
+                    @team.broadcast 'all', 'wis:speak', scene
 
-                    # if all player speaked
-                    if @logger.fullpage(@round)
+                    if !scene.next
                         @team.broadcast 'all', 'game:vote:begin'
-                        @logger.prepareVote()
-                        @.transition('vote')
+                        @GM.prepareVote()
+                        console.log 'vote'
+                        # @transition('vote')
 
             vote:
                 vote: (data)->
@@ -151,15 +144,15 @@ create = (rid)->
                     target = data.target
                     fn = data.callback
 
-                    unless @logger.isVoted(from)
+                    unless @GM.isVoted(from)
                         fn("您已投票给 #{target+1} 号，等其他人投票后显示投票结果。")
-                        @logger.vote(@round, from, target)
+                        @GM.vote(@round, from, target)
 
-                    if @logger.completeVote()
+                    if @GM.completeVote()
                         console.log round: @round
-                        voteResult = @logger.getVoteResult(@team, @round)
+                        voteResult = @GM.getVoteResult(@team, @round)
                         @team.broadcast 'all', 'game:vote:result', Fmt.list(voteResult.list)
-                        gameResult = @logger.getGameResult(@team, @)
+                        gameResult = @GM.getGameResult(@team, @)
                         console.log getGameResult: gameResult
                         if gameResult.gameover
                             @team.broadcast 'all', 'game:over', Fmt.list(gameResult.list)

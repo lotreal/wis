@@ -29,7 +29,6 @@ angular.module('wis.connect', [])
                 socket.on 'wis:speak', (data)->
                     fsm.handle('speak', data)
 
-
                 fsm.on 'wis:start', (data)->
                     socket.emit 'wis:start'
 

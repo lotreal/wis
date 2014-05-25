@@ -3,6 +3,8 @@
 _ = require('lodash')
 Fmt = require('./sn')
 Vote = require('./vote')
+config = require('../config/config')
+word = require('./word')
 
 class Store
     constructor: (@fsm) ->
@@ -14,15 +16,30 @@ class Store
         @votes = []
         @full = {}
 
+    generateWisWord: ->
+        words = if config.env == 'development' then ['CIVIL','SPY'] else word()
+        @wisWord = civil:words[0], spy:words[1]
+        return
+
+    getWisWord: (role)->
+        return @wisWord[role]
+
     'play.speak': (data)->
         round = @fsm.round
-
+        find = _.find @speaks, {round:round}
         @speaks.push(
             round: round
             player: data.player
             message: data.message
         )
+        role = @team.getRole(data.player)
+        return @getScene(role, round)
 
+    start: ->
+        @team.initGroup()
+        @generateWisWord()
+
+    getScene: (role, round)->
         next = false
         list = []
         for player, i in @team.getLeft()
@@ -33,12 +50,18 @@ class Store
                 else
                     player.message = find.message
             else
-                next = player
+                next = player.uid
+                player.message = ''
             list.push(player)
 
-        ret = list:list, next:next
-        console.log ret
-        return ret
+        scene = speaks:list, next:next
+
+        data =
+            game:
+                word: @getWisWord(role)
+                round: round
+            scene: scene
+        return data
 
     log: (page, from, message)->
         page = "page-#{page}"

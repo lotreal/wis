@@ -171,17 +171,19 @@ angular.module('wis.game', ['wis.api'])
 
                     play:
                         _onEnter: ->
+                            self = @
                             model.state = @state
 
                             $scope.isVisible = (key)->
                                 return key == 'play'
 
                             $scope.vote = (idx)->
-                                @emit 'game:vote', idx, (res)->
+                                self.emit 'game:vote', idx, (res)->
                                     $scope.subtitle = res
 
                         load: (data)->
                             model.word = data.game.word
+                            model.scene = data.scene
                             console.log fPlay: data
 
                             unless data.game.round == undefined
@@ -192,10 +194,10 @@ angular.module('wis.game', ['wis.api'])
                             $scope.getBoard = ->
                                 sprintf('第 %d 版', round)
 
-                        speak: (chat)->
-                            console.log "chat - #{chat.uid}: #{chat.message}"
-                            console.log chat
-
+                        speak: (data)->
+                            model.scene = data.scene
+                            console.log data
+                            # $scope.$apply() unless $scope.$$phase
 
                     pending:
                         _onEnter: ->
@@ -208,12 +210,8 @@ angular.module('wis.game', ['wis.api'])
                             model.actionLabel = sprintf(data.message, data.count)
 
                         start: (data)->
-                            load =
-                                game:
-                                    word:data.word
-
                             @transition('play')
-                            @handle('load', load)
+                            @handle('load', data)
 
             )
             return game

@@ -14,8 +14,8 @@ module.exports = (io) ->
     io.set('log level', 1)                    # reduce logging
 
     postal.subscribe(
-        channel  : 'wis'
-        topic    : 'socket.io.emit'
+        channel  : 'connection'
+        topic    : 'broadcast'
         callback : (data, envelop)->
             for user in data.target
                 for sid in conn.findSockets(user.getId())

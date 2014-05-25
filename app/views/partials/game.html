@@ -109,22 +109,17 @@
         </div>
 
         <ul class="list-unstyled list-info">
-          <li class="list-group-item" ng-repeat="data in speaks"
+          <li class="list-group-item" ng-repeat="data in model.scene.speaks"
               ng-click="vote($index)"
               >
-            <span x-ng-if="data.flag == 'turn'"
+            <span x-ng-if="data.uid == model.scene.next"
                   title="请发言"
-                  class="icon glyphicon glyphicon-eye-open"></span>
-            <span x-ng-if="data.flag == ''"
+                  class="icon glyphicon glyphicon-volume-up"></span>
+            <span x-ng-if="data.uid != model.scene.next"
                   class="icon glyphicon glyphicon-blank"></span>
 
-            <span id="balloon-{{$index}}"
-                  popover-placement="right"
-                  popover="{{chats[$index]}}"
-                  popover-trigger="focus"
-                  >
-              {{data.name}}
-            </span>
+            {{data.profile.name}}：
+            {{data.message}}
           </li>
 
           <li x-ng-hide="true">

@@ -8,6 +8,7 @@ postal = require('postal')
 module.exports = (->
     class Team
         constructor: (@id) ->
+            @roles = ['civil', 'spy']
             @group = {}
             @disconnected = {}
             @member = []
@@ -19,7 +20,7 @@ module.exports = (->
         getSpy:    ->@group.spy
         getHit:    ->@group.hit
 
-        beforePlay: ->
+        initGroup: ->
             sliced = util.sliceRnd(@member, 1)
             @group.spy    = sliced[0]
             @group.civil  = sliced[1]
@@ -32,8 +33,8 @@ module.exports = (->
         broadcast: (group, event, data)->
             target = if group == 'all' then @getMember() else @group[group]
             postal.publish(
-                channel : "wis"
-                topic   : "socket.io.emit",
+                channel : "connection"
+                topic   : "broadcast",
                 data    :
                     target: target
                     event:  event

@@ -1,6 +1,7 @@
 'use strict'
 
-Promise = require('bluebird')
+postal = require('postal')
+
 User = require('../models/user').User
 
 class Player
@@ -24,5 +25,16 @@ class Player
         @ready = !@ready
         return @ready
 
+    broadcast: (group, event, data)->
+        target = [@]
+        postal.publish(
+            channel : "connection"
+            topic   : "broadcast",
+            data    :
+                target: target
+                event:  event
+                data:   data
+        )
+        return
 
 module.exports = Player
