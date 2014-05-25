@@ -36,31 +36,6 @@ angular.module('WisApp').controller 'MainCtrl', [
                 $location.path signin
             )
 
-        $scope.isSpecificPage = ->
-            true
-
-
-        # for ui
-        $scope.isCollapsed = true
-        $scope.subtitle = '江南五大才子'
-
-        $scope.start = ->
-            $scope.isCollapsed = !$scope.isCollapsed
-
-        $scope.list = [
-            {flag: 'master', ready: !false, name: '罗涛', slogan: '银烛荧煌照绮罗，八溟争敢起波涛。'}
-            {flag: '',       ready: true,  name: '杨纪珂', slogan: '三阳本是标灵纪，黄道天清拥珮珂。'}
-            {flag: 'you',    ready: !false, name: '邓娟', slogan: '邓艾心知战地宽，娟娟西月生蛾眉。'}
-            {flag: '',       ready: true,  name: '王九宁', slogan: '九转但能生羽翼，宁知此木超尘埃。'}
-        ]
-
-        $scope.speak = [
-            {flag: '', name: '罗涛', message: '银烛荧煌照绮罗，八溟争敢起波涛。'}
-            {flag: 'turn', name: '杨纪珂', message: '三阳本是标灵纪，黄道天清拥珮珂。'}
-            {flag: '', name: '邓娟', message: '邓艾心知战地宽，娟娟西月生蛾眉。'}
-            {flag: '', name: '王九宁', message: '九转但能生羽翼，宁知此木超尘埃。'}
-        ]
-
         return
 ]
 

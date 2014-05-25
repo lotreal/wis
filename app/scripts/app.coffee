@@ -22,7 +22,7 @@ app.config [
             redirectTo: '/1ntlvb7r'
         ).when('/ui',
             templateUrl: 'partials/game'
-            controller: 'MainCtrl'
+            controller: 'UiCtrl'
         ).when('/signin',
             templateUrl: 'partials/signin'
             controller: 'MainCtrl'

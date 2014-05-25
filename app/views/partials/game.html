@@ -104,13 +104,13 @@
         <div class="panel-heading">
           <strong>
             <span class="glyphicon glyphicon-home" ng-click="debug()"></span>
-            【{{model.word}}】 {{model.room.name}}（{{getBoard()}}）
+            【{{model.word}}】 {{model.room.name}}（第 {{model.round}} 版）
           </strong>
         </div>
 
         <ul class="list-unstyled list-info">
           <li class="list-group-item" ng-repeat="data in model.scene.speaks"
-              ng-click="vote($index)"
+              ng-click="vote(data.uid)"
               >
             <span x-ng-if="data.uid == model.scene.next"
                   title="请发言"
@@ -122,10 +122,10 @@
             {{data.message}}
           </li>
 
-          <li x-ng-hide="true">
+          <li x-ng-hide="">
             <section class="row text-center">
               <button class="btn btn-w-md btn-gap-v btn-line-primary" ng-click="start()">
-                开始
+                请投票
               </button>
             </section>
           </li>

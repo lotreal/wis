@@ -178,6 +178,7 @@ angular.module('wis.game', ['wis.api'])
                                 return key == 'play'
 
                             $scope.vote = (idx)->
+                                console.log 'vote', idx
                                 self.emit 'game:vote', idx, (res)->
                                     $scope.subtitle = res
 
@@ -191,8 +192,7 @@ angular.module('wis.game', ['wis.api'])
 
                         'start.round': (round)->
                             console.log round: round
-                            $scope.getBoard = ->
-                                sprintf('第 %d 版', round)
+                            model.round = round
 
                         speak: (data)->
                             model.scene = data.scene
