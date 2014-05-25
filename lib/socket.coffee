@@ -5,11 +5,11 @@ postal = require('postal')
 Context = require('./context')
 Player = require('./wis/player')
 Fmt = require('./wis/sn')
-game = require('./wis/gamefsm')
+rule = require('./wis/rule')
 connect = require('./wis/connection')
 
 # 建立游戏房间
-testgame = game.getInstance('1ntlvb7r')
+testgame = rule.getInstance('1ntlvb7r')
 testgame.handle('initialized')
 
 module.exports = (socket) ->

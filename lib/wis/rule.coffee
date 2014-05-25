@@ -12,7 +12,7 @@ Team = require('./team')
 Promise = require('bluebird')
 Fmt = require('./sn')
 
-Logger = require('./store')
+GameMaster = require('./gm')
 conn = require('./connection')
 util = require('../util')
 
@@ -47,7 +47,7 @@ create = (rid)->
             uninitialized:
                 initialized: ->
                     @team = context.one('team:'+rid, ()->new Team(rid))
-                    @GM = new Logger(@)
+                    @GM = new GameMaster(@)
 
                     console.log 'Initialized'
                     @transition 'ready'
