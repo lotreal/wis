@@ -2,24 +2,20 @@
 angular.module('WisApp').controller 'MainCtrl', [
     '$scope', '$http', '$location'
     ($scope, $http, $location) ->
-        $scope.username = ''
-
-        $scope.login = ->
-            $http.post('/login', {
-                username: $scope.username
-                password: $scope.password
-            })
+        $scope.submit = ->
+            return unless $scope.login_form.$valid
+            $http.post('/login', $scope.login)
             .success((res)->
                 [err, token] = res
 
                 if err
-                    console.log err
-                    alert(err)
+                    $scope.login_form.$setValidity 'login', false
                     return
 
                 $location.path '/1ntlvb7r'
             )
             .error((err)->
+                $scope.login_form.$setValidity 'server', false
                 console.log err
             )
 

@@ -19,7 +19,10 @@
 
                 <span class="line-thru">OR</span>
 
-                <form class="form-horizontal">
+                <form class="form-horizontal"
+                      name="login_form"
+                      novalidate
+                      ng-submit="submit()">
                     <fieldset>
                         <div class="form-group">
                             <div class="input-group input-group-lg">
@@ -28,9 +31,11 @@
                                 </span>
                                 <input type="text"
                                        class="form-control"
+                                       name="username"
                                        placeholder="姓名"
-                                       ng-model="username"
-                                       >
+                                       ng-model="login.username"
+                                       required
+                                       />
                             </div>
                         </div>
                         <div class="form-group">
@@ -40,15 +45,24 @@
                                 </span>
                                 <input type="password"
                                        class="form-control"
+                                       name="password"
                                        placeholder="密码"
-                                       ng-model="password"
-                                       >
+                                       ng-model="login.password"
+                                       required
+                                       />
                             </div>
                         </div>
                         <div class="form-group">
+                          <input type="submit" class="btn btn-primary btn-lg btn-block" value="登录" />
                         </div>
-                        <div class="form-group">
-                            <a class="btn btn-primary btn-lg btn-block" ng-click="login()">登录</a>
+                        <div class="has-error text-center"
+                             ng-show="!login_form.$valid">
+                          <p ng-show="login_form.$error.required">
+                            请输入用户名和密码。
+                          </p>
+                          <p ng-show="login_form.$error.login">
+                            用户名或密码错误。
+                          </p>
                         </div>
                     </fieldset>
                 </form>
