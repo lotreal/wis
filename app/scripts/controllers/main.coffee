@@ -3,7 +3,8 @@ angular.module('WisApp').controller 'MainCtrl', [
     '$scope', '$http', '$location'
     ($scope, $http, $location) ->
         $scope.submit = ->
-            return unless $scope.login_form.$valid
+            return if $scope.login_form.$error.required
+
             $http.post('/login', $scope.login)
             .success((res)->
                 [err, token] = res
