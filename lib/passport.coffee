@@ -20,6 +20,11 @@ verify = exports.verify = (token, callback)->
     jwt.verify(token, secret, callback)
 
 getSessionID = (req)->
+    # sidCookie = (data.secureCookies && data.secureCookies[EXPRESS_SID_KEY]) ||
+    #     (data.signedCookies && data.signedCookies[EXPRESS_SID_KEY]) ||
+    #     (data.cookies && data.cookies[EXPRESS_SID_KEY])
+    # console.log(sidCookie);
+
     return new Promise (resolve, reject)->
         return reject('No session.', false) if !req.headers.cookie
         session.cookieParser req, null, (err)->

@@ -17,13 +17,13 @@ module.exports = (socket) ->
 
     channel = postal.channel("wis.#{connect.findRoom(socket.id)}")
 
-    socket.on 'wis:ready', ->
+    socket.on 'ready', ->
         channel.publish topic: 'ready', data:socket
 
-    socket.on 'wis:speak', (msg)->
+    socket.on 'speak', (msg)->
         channel.publish topic:'speak', data:{from:socket, message:msg}
 
-    socket.on 'wis:start', ()->
+    socket.on 'start', ()->
         channel.publish topic: 'start'
 
 

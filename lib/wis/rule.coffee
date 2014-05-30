@@ -67,7 +67,7 @@ create = (rid)->
                 update: ->
                     console.log team: @team.getMember()
                     players = @GM.loadWaitroom()
-                    @team.broadcast 'all', 'wis:reflash', players
+                    @team.broadcast 'all', 'load', players
 
                 ready: (from)->
                     uid = conn.findUser(from)
@@ -77,7 +77,7 @@ create = (rid)->
                         uid:uid
                         isReady:player.toggleReady()
                         isMaster:index == 0
-                    @team.broadcast 'all', 'wis:usermod', mod
+                    @team.broadcast 'all', 'usermod', mod
 
                 in: (player)->
                     @team.add player
@@ -96,15 +96,15 @@ create = (rid)->
                     player = @team.getMember()[i]
                     player.message = data.message
 
-                    @team.broadcast 'all', 'wis:speak', {index:i,message:data.message,uid:uid}
+                    @team.broadcast 'all', 'speak', {index:i,message:data.message,uid:uid}
 
                 start: ->
-                    @team.broadcast 'all', 'wis:start:forecast'
+                    @team.broadcast 'all', 'start:forecast'
 
                     # 发牌
                     deal = (role)->
                         console.log role:@GM.getScene(role, @round)
-                        @team.broadcast role, 'wis:start',
+                        @team.broadcast role, 'start',
                             @GM.getScene(role, @round)
 
                     done = ->
@@ -112,12 +112,12 @@ create = (rid)->
                         _.forEach @team.roles, _.bind(deal, @)
                         @transition('play')
 
-                    countdown(@team, 'wis:start:countdown', 1,
+                    countdown(@team, 'start:countdown', 1,
                         '尚书大人正在出题(%d)', _.bind(done, @))
 
             play:
                 _onEnter: ->
-                    @team.broadcast 'all', 'wis:start:round', ++@round
+                    @team.broadcast 'all', 'start:round', ++@round
 
                 snapshot: (uid, callback)->
                     player = @team.find(uid)
@@ -130,7 +130,7 @@ create = (rid)->
                     player = data.player = @getPlayerFromSocket(data.from)
                     scene = @record @, data
 
-                    @team.broadcast 'all', 'wis:speak', scene
+                    @team.broadcast 'all', 'speak', scene
 
                     if !scene.next
                         @team.broadcast 'all', 'game:vote:begin'

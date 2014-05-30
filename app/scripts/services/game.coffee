@@ -10,15 +10,10 @@ angular.module('wis.game', ['wis.api'])
             clearTimeout(timeoutHandler[key])
             timeoutHandler[key] = setTimeout(fn, timeout)
 
-        fsm = ($scope) ->
-            model = $scope.model
+        fsm = (rid, $scope) ->
+            model = $scope.model = {}
 
             class Player
-                @get: (p)->
-                    return new Player(p.uid)
-
-                constructor: (@uid) ->
-
                 @setFlag: (p)->
                     p.flag = ''
                     p.flag = 'ready' if p.isReady
@@ -55,7 +50,8 @@ angular.module('wis.game', ['wis.api'])
                 initialState: 'uninitialized'
                 namespace: 'wis'
 
-                sync: (rid)->
+                load: (rid)->
+                    @rid = rid
                     console.log 'sync game data'
                     api.getRoom(rid).then(
                         _.bind(
@@ -93,7 +89,7 @@ angular.module('wis.game', ['wis.api'])
                             $scope.speak = (evt)->
                                 if evt.keyCode == 13
                                     if $scope.input
-                                        self.emit 'wis:speak', $scope.input
+                                        self.emit 'speak', $scope.input
                                         console.log 'input - ', $scope.input
                                         $scope.input = ''
 
@@ -120,7 +116,7 @@ angular.module('wis.game', ['wis.api'])
                                 return true if Player.flag() != 'master'
                                 return Player.allReady()
 
-                            # $scope.$apply() unless $scope.$$phase
+                            $scope.$apply() unless $scope.$$phase
                             $('#wis-input').focus()
                             console.log 'enter waitroom'
 
@@ -142,11 +138,11 @@ angular.module('wis.game', ['wis.api'])
                         action: (data)->
                             if Player.flag() == 'master'
                                 @pending(3000)
-                                @emit 'wis:start'
+                                @emit 'start'
                                 console.log 'start game'
 
                             else
-                                @emit 'wis:ready', model.uid
+                                @emit 'ready', model.uid
                                 console.log 'ready'
 
                         usermod: (data)->
@@ -214,6 +210,11 @@ angular.module('wis.game', ['wis.api'])
                             @handle('load', data)
 
             )
+
+            game.load(rid)
+            console.log 'GAME'
+
+            # console.log _.uniq(_.flatten(funcs))
             return game
         return fsm
 ])
