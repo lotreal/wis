@@ -24,7 +24,7 @@ angular.module('wis.connect', [])
                 socket.emit.apply socket, args
 
         return {
-            setup: (fsm)->
+            handle: (fsm)->
                 socket = socketFactory({
                     ioSocket: io.connect('', query: "rid=#{fsm.rid}")
                 })

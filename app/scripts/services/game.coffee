@@ -1,10 +1,8 @@
 'use strict'
 
-angular.module('wis.game', ['wis.api'])
+angular.module('wis.game', ['wis.api', 'wis.player'])
 
-.factory("game", [
-    "api", "$q"
-    (api, $q) ->
+.factory("game", (api, playerService) ->
         timeoutHandler = {}
         setTimeoutIfNo = (fn, timeout, key)->
             clearTimeout(timeoutHandler[key])
@@ -13,37 +11,6 @@ angular.module('wis.game', ['wis.api'])
         fsm = (rid, $scope) ->
             model = $scope.model = {}
 
-            class Player
-                @setFlag: (p)->
-                    p.flag = ''
-                    p.flag = 'ready' if p.isReady
-                    p.flag = 'master' if p.isMaster
-                    return p
-
-                @find: (player)->
-                    return _.find model.members, (p)->p.uid == player.uid
-
-                @isMe: (player)->
-                    return player.uid == model.uid
-
-                @me: ->
-                    @find(uid:model.uid)
-
-                @flag: ->
-                    @setFlag(@me()).flag
-
-                @setBalloon: (uid, message)->
-                    return unless message
-                    index = _.findIndex(model.members, uid:uid)
-                    model.chats[index] = message
-                    # trigger 'focus' let popover show
-                    ballon = $('#balloon-'+index)
-                    ballon.triggerHandler('focus')
-                    hide = ->ballon.triggerHandler('blur')
-                    setTimeoutIfNo(hide, 7000, "hide-ballon-#{uid}")
-
-                @allReady: ->
-                    _.every(model.members, (p)->p.isMaster || p.isReady)
 
 
             game = new machina.Fsm(
@@ -80,6 +47,8 @@ angular.module('wis.game', ['wis.api'])
                             model.room = data.room
                             model.profile = data.profile
 
+                            playerService.init(data.uid, data.members)
+
                             # TODO fix this
                             model.chats = [0..99]
 
@@ -104,17 +73,17 @@ angular.module('wis.game', ['wis.api'])
                             model.round = 0
 
                             $scope.getBoard = ->
-                                num = model.members.length
+                                num = playerService.members.length
                                 api.teamname(model.room.team, num) if num > 0
 
                             $scope.isVisible = (key)->
                                 return key == 'ready'
 
                             $scope.actionAvailable = ->
-                                console.log flag:Player.flag(), ready:Player.allReady(), state: model.state
+                                console.log flag:playerService.flag(), ready:playerService.allReady(), state: model.state
                                 return false unless model.state == 'ready'
-                                return true if Player.flag() != 'master'
-                                return Player.allReady()
+                                return true if playerService.flag() != 'master'
+                                return playerService.allReady()
 
                             $scope.$apply() unless $scope.$$phase
                             $('#wis-input').focus()
@@ -122,21 +91,22 @@ angular.module('wis.game', ['wis.api'])
 
                         load: (data)->
                             console.log fReady: data
-                            _.map data.members, (p)->
-                                Player.setFlag(p)
 
-                            model.members = data.members
+                            _.map playerService.members, (p)->
+                                playerService.setFlag(p)
+
+                            model.members = playerService.members
 
                             showChat = ->
-                                _.forEach model.members, (p)->
-                                    Player.setBalloon(p.uid, p.message)
+                                _.forEach playerService.members, (p)->
+                                    playerService.setBalloon(model, p.uid, p.message)
 
                             setTimeout showChat, 300
 
-                            @handle('usermod', Player.me())
+                            @handle('usermod', playerService.me())
 
                         action: (data)->
-                            if Player.flag() == 'master'
+                            if playerService.flag() == 'master'
                                 @pending(3000)
                                 @emit 'start'
                                 console.log 'start game'
@@ -147,13 +117,13 @@ angular.module('wis.game', ['wis.api'])
 
                         usermod: (data)->
                             return unless data
-                            Player.setFlag(data)
+                            playerService.setFlag(data)
                             console.log "usermod #{data.uid}", data
 
-                            find = Player.find(data)
+                            find = playerService.find(data)
                             find = _.merge(find, data)
 
-                            if Player.isMe(find)
+                            if playerService.isMe(find)
                                 label = '准备'
                                 label = '取消准备' if find.flag == 'ready'
                                 label = '开始' if find.flag == 'master'
@@ -161,7 +131,7 @@ angular.module('wis.game', ['wis.api'])
 
                         speak: (chat)->
                             console.log "chat - #{chat.uid}: #{chat.message}"
-                            Player.setBalloon(chat.uid, chat.message)
+                            playerService.setBalloon(model, chat.uid, chat.message)
 
                         start: ->
 
@@ -217,4 +187,4 @@ angular.module('wis.game', ['wis.api'])
             # console.log _.uniq(_.flatten(funcs))
             return game
         return fsm
-])
+)
